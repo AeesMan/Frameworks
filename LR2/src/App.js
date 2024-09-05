@@ -1,11 +1,70 @@
-import React, { useState, useEffect } from 'react'
-import Loading from './Loading'
-import Tours from './Tours'
+import React, { useState, useEffect } from "react";
+import Loading from "./Loading";
+import Tours from "./Tours";
+import data from './data';
 // ATTENTION!!!!!!!!!!
-// I SWITCHED TO PERMANENT DOMAIN
-const url = 'https://course-api.com/react-tours-project'
+// Check URL
 function App() {
-  return <h2>Tours Project Setup</h2>
+  const [loading, setloading] = useState(true);
+  const [tours, setTours] = useState(data);
+
+  const fetchTours = async () => {
+    setloading(true);
+    try {
+      console.log(tours);
+      setloading(false);
+      setTours(tours);
+    } catch (error) {
+      setloading(false);
+      console.log(error);
+    }
+  };
+
+
+
+  const removeTour = (id) => {
+        const restTour = tours.filter((el) => el.id !== id);
+        setTours(restTour);
+      };
+
+
+
+
+  useEffect(() => {
+    fetchTours();
+  }, []);
+
+  if (loading) {
+    return (
+      <main>
+        <Loading />
+      </main>
+    );
+  }
+
+  if (tours.length === 0) {
+    return (
+      <main>
+        <div className="title">
+          <h2>no tours left</h2>
+          <button className="btn" onClick={fetchTours}>
+            Refresh
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+
+
+
+  return (
+    <main>
+      <Tours removeTour={removeTour} tours={tours} />
+    </main>
+  );
 }
 
-export default App
+
+
+export default App;
