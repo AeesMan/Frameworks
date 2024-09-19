@@ -3,7 +3,7 @@ import Menu from './data';
 
 const Categories = ({filterItems}) => {
   let arr = Menu.map(item => item.category)
-  let huinya = [...new Set(arr)]
+  let sort = [...new Set(arr)]
   return (
     <div className='btn-container'>
       <button className='filter-btn' onClick={() => filterItems("all")}>
@@ -11,7 +11,7 @@ const Categories = ({filterItems}) => {
       </button>
 
       {
-      huinya.map((item) => (
+      sort.map((item) => (
         <button className='filter-btn' onClick={() => filterItems(item)}>
           {item}
         </button>
