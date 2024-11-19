@@ -1,0 +1,313 @@
+/* Загальні стилі для сторінки */
+
+h1 {
+  color: #ffffff;
+  text-align: center;
+    margin-bottom: 20px;
+  padding: 15px;
+}
+  
+/* Контейнер для кнопок */
+.controls-container {
+    position: fixed;
+    bottom: 0; /* Фіксувати знизу */
+    left: 0; /* Почати від лівого краю */
+    width: 100%; /* Розтягнути по всій ширині */
+    background-color: #201f1f;
+    padding: 15px;
+    border-top: 2px solid #7a1a1a; /* Обводка зверху панелі */
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1); /* Тінь зверху */
+    z-index: 100; /* Перекриває інші елементи */
+    display: flex;
+    justify-content: center; /* Центрує кнопки */
+    align-items: center;
+    gap: 5px; /* Інтервал 5 пікселів між кнопками */
+  }
+  
+  /* Кнопки */
+  button {
+    background-color: #201f1f;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-size: 20px; /* Збільшений шрифт для кнопок */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-block;
+  }
+  
+  button i {
+    font-size: 18px; /* Змінити розмір іконок */
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+  }
+  
+  button:active {
+    transform: scale(0.95);
+  }
+  
+  
+  
+  
+  /* Повзунок для гучності */
+  label {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #ffffff;
+  }
+  
+  input[type="range"] {
+    margin-left: 100px;
+    width: 100px;
+  }
+  
+  /* Меню */
+  .menu {
+    text-align: center;
+    margin-top: 30px;
+  }
+  
+  #menuButton {
+    background-color: #000000;
+    color: white;
+    font-size: 18px;
+    padding: 12px 30px;
+    border-radius: 5px;
+  }
+  
+  #menuButton:hover {
+    background-color: #000000;
+  }
+  
+  .menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+  .menu-buttons button {
+    background-color: #6c757d;
+    color: white;
+    font-size: 16px;
+    padding: 15px;
+    border-radius: 15px;
+  }
+  
+  .menu-buttons button:hover {
+    background-color: #5a6268;
+  }
+  
+  
+/* Основний контейнер */
+.main-container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh; /* Повна висота екрану */
+    transition: margin-left 0.3s ease; /* Анімація зміщення контенту */
+  }
+  
+  /* Клас, який додається при відкритті меню */
+  .main-container.menu-open {
+    margin-left: 150px; /* Зсув контенту при відкритті меню */
+  }
+  
+  
+  .track-list {
+    position: fixed;
+    top: 45%;
+    right: 0;
+    transform: translateY(-50%); /* Центруємо по вертикалі */
+    width: 800px;
+    background-color: #2a2a2a;
+    padding: 20px;
+    border-radius: 10px;
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    overflow-y: auto; /* Додаємо прокручування, якщо список довгий */
+    max-height: 60vh; /* Максимальна висота списку */
+}
+
+.track-list h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #fff;
+    text-align: center;
+}
+
+.track-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #333;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+.track-item:hover {
+    background-color: #444;
+}
+
+.track-cover-container {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+}
+
+.track-cover {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    object-fit: cover; /* Зображення заповнює контейнер */
+}
+
+.track-info {
+    flex-grow: 1;
+}
+
+.track-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.track-artist {
+    font-size: 14px;
+    color: #bbb;
+    margin: 0;
+}
+
+.play-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Центрує кнопку */
+  background-color: rgba(0, 123, 255, 0.0); /* Напівпрозорий фон */
+  color: rgba(255, 255, 255, 0.0);
+  border: none;
+  padding: 18px;
+  font-size: 5px;
+  cursor: pointer;
+  border-radius: 11%;
+  transition: background-color 0.2s ease; /* Тільки змінюється фон, без руху */
+  z-index: 1; /* Перекриває зображення */
+}
+
+.play-button:hover {
+  background-color: rgb(0, 0, 0, 0.5); /* Яскравіший фон при наведенні */
+  /* Забираємо будь-які зміни, які могли б вплинути на позицію кнопки */
+  transform: translate(-50%, -50%); /* Додатково зберігаємо трансформацію, щоб не зміщувалась */
+  color: white;
+}
+
+
+.play-button:active {
+    background-color: rgb(0, 0, 0, 1);
+}
+
+
+
+  /* Панель меню */
+  .menu-panel {
+    position: fixed;
+    top: 0;
+    left: -150px; /* Початково прихована з лівого боку */
+    width: 150px;
+    height: 100%;
+    background-color: #000000;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    transition: left 0.3s ease; /* Анімація для виділення панелі */
+    z-index: 100; /* Перекриває інші елементи */
+  }
+  
+  /* Відкриття панелі меню */
+  .menu-panel.open {
+    left: 0; /* При відкритті панель рухається на 0 */
+  }
+  
+  /* Кнопка меню (залишатиметься на одному місці) */
+  .menu-button {
+    position: fixed;
+    top: 10px;  /* Відстань від верху */
+    left: 10px;  /* Відстань від лівого краю */
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 101; /* Поверх панелі меню */
+  }
+  
+  /* Кнопки меню */
+  .menu-buttons {
+    margin-top: 80px;
+  }
+  
+  .menu-item {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 15px;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .menu-item:hover {
+    background-color: #555;
+  }
+  
+  /* Панель пошуку */
+  .searchPage {
+    position: absolute;
+    top: 50px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .searchPage input {
+    padding: 5px;
+    margin-right: 5px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .searchButton {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  
+  /* Головна сторінка */
+  .homePage {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+  }
+  
+  /* Вміст */
+  .content {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 20px;
+    flex-grow: 1;
+  }
+  

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="home.component.css">
+</head>
+<body>
+  <h1>Media Player</h1>
+
+  <!-- Контейнер для управління плеєром, фіксований внизу -->
+  <div class="controls-container">
+    <button id="prevTrack">
+        <i class="fa fa-backward"></i> <!-- "Попередній трек" -->
+      </button>
+      <button id="playPause">
+        <i class="fa fa-play"></i> <!-- "Старт" -->
+      </button>
+      <button id="nextTrack">
+        <i class="fa fa-forward"></i> <!-- "Наступний трек" -->
+      </button>
+      <button id="repeatMode">
+        <i class="fa-solid fa-rotate-right"></i><!-- "Повтор" -->
+      </button>
+        <i class="fa-solid fa-music"></i><!-- "Звук" -->
+        <input id="volumeSlider" type="range" min="0" max="1" step="0.1" value="0.5">
+  </div>
+
+  <div class="main-container" [class.menu-open]="isMenuOpen">
+    <!-- Панель меню (ліва) -->
+    <div id="menuPanel" class="menu-panel" [class.open]="isMenuOpen">
+      <div class="menu-buttons">
+        <button class="menu-item">Home</button>
+        <button class="menu-item">Search</button>
+        <button class="menu-item">Upload</button>
+      </div>
+    </div>
+  
+    <!-- Кнопка для відкриття меню (залишатиметься на одному місці) -->
+    <button id="menuButton" class="menu-button" (click)="toggleMenu()">
+      <i class="fa fa-bars"></i> 
+    </button>
+  
+    <!-- Пошук (право верх) -->
+    <div class="searchPage">
+      <input type="text" placeholder="Search...">
+      <button class="searchButton">
+        <i class="fa fa-search"></i>
+      </button>
+    </div>
+  
+    <!-- Контент -->
+    <div class="content">
+      <!-- Основний контент тут -->
+      <p>This is the content of the webpage.</p>
+    </div>
+
+
+    <div class="track-list">
+      <h2>Треки</h2>
+      <div class="track-item">
+          <div class="track-cover-container">
+              <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+              <button class="play-button"><i class="fa fa-play"></i></button>
+          </div>
+          <div class="track-info">
+              <p class="track-title">Track 1</p>
+              <p class="track-artist">Artist 1</p>
+          </div>
+      </div>
+      <div class="track-item">
+          <div class="track-cover-container">
+              <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+              <button class="play-button"><i class="fa fa-play"></i></button>
+          </div>
+          <div class="track-info">
+              <p class="track-title">Track 2</p>
+              <p class="track-artist">Artist 2</p>
+          </div>
+      </div>
+      <div class="track-item">
+          <div class="track-cover-container">
+              <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+              <button class="play-button"><i class="fa fa-play"></i></button>
+          </div>
+          <div class="track-info">
+              <p class="track-title">Track 3</p>
+              <p class="track-artist">Artist 3</p>
+          </div>
+      </div>
+      <div class="track-item">
+        <div class="track-cover-container">
+            <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+            <button class="play-button"><i class="fa fa-play"></i></button>
+        </div>
+        <div class="track-info">
+            <p class="track-title">Track 1</p>
+            <p class="track-artist">Artist 1</p>
+        </div>
+    </div>
+    <div class="track-item">
+        <div class="track-cover-container">
+            <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+            <button class="play-button"><i class="fa fa-play"></i></button>
+        </div>
+        <div class="track-info">
+            <p class="track-title">Track 2</p>
+            <p class="track-artist">Artist 2</p>
+        </div>
+    </div>
+    <div class="track-item">
+        <div class="track-cover-container">
+            <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+            <button class="play-button"><i class="fa fa-play"></i></button>
+        </div>
+        <div class="track-info">
+            <p class="track-title">Track 3</p>
+            <p class="track-artist">Artist 3</p>
+        </div>
+    </div>
+    <div class="track-item">
+      <div class="track-cover-container">
+          <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+          <button class="play-button"><i class="fa fa-play"></i></button>
+      </div>
+      <div class="track-info">
+          <p class="track-title">Track 1</p>
+          <p class="track-artist">Artist 1</p>
+      </div>
+  </div>
+  <div class="track-item">
+      <div class="track-cover-container">
+          <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+          <button class="play-button"><i class="fa fa-play"></i></button>
+      </div>
+      <div class="track-info">
+          <p class="track-title">Track 2</p>
+          <p class="track-artist">Artist 2</p>
+      </div>
+  </div>
+  <div class="track-item">
+      <div class="track-cover-container">
+          <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+          <button class="play-button"><i class="fa fa-play"></i></button>
+      </div>
+      <div class="track-info">
+          <p class="track-title">Track 3</p>
+          <p class="track-artist">Artist 3</p>
+      </div>
+  </div>
+  <div class="track-item">
+    <div class="track-cover-container">
+        <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+        <button class="play-button"><i class="fa fa-play"></i></button>
+    </div>
+    <div class="track-info">
+        <p class="track-title">Track 1</p>
+        <p class="track-artist">Artist 1</p>
+    </div>
+</div>
+<div class="track-item">
+    <div class="track-cover-container">
+        <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+        <button class="play-button"><i class="fa fa-play"></i></button>
+    </div>
+    <div class="track-info">
+        <p class="track-title">Track 2</p>
+        <p class="track-artist">Artist 2</p>
+    </div>
+</div>
+<div class="track-item">
+    <div class="track-cover-container">
+        <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+        <button class="play-button"><i class="fa fa-play"></i></button>
+    </div>
+    <div class="track-info">
+        <p class="track-title">Track 3</p>
+        <p class="track-artist">Artist 3</p>
+    </div>
+</div>
+<div class="track-item">
+  <div class="track-cover-container">
+      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+      <button class="play-button"><i class="fa fa-play"></i></button>
+  </div>
+  <div class="track-info">
+      <p class="track-title">Track 1</p>
+      <p class="track-artist">Artist 1</p>
+  </div>
+</div>
+<div class="track-item">
+  <div class="track-cover-container">
+      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+      <button class="play-button"><i class="fa fa-play"></i></button>
+  </div>
+  <div class="track-info">
+      <p class="track-title">Track 2</p>
+      <p class="track-artist">Artist 2</p>
+  </div>
+</div>
+<div class="track-item">
+  <div class="track-cover-container">
+      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+      <button class="play-button"><i class="fa fa-play"></i></button>
+  </div>
+  <div class="track-info">
+      <p class="track-title">Track 3</p>
+      <p class="track-artist">Artist 3</p>
+  </div>
+</div>
+<div class="track-item">
+  <div class="track-cover-container">
+      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+      <button class="play-button"><i class="fa fa-play"></i></button>
+  </div>
+  <div class="track-info">
+      <p class="track-title">Track 1</p>
+      <p class="track-artist">Artist 1</p>
+  </div>
+</div>
+<div class="track-item">
+  <div class="track-cover-container">
+      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+      <button class="play-button"><i class="fa fa-play"></i></button>
+  </div>
+  <div class="track-info">
+      <p class="track-title">Track 2</p>
+      <p class="track-artist">Artist 2</p>
+  </div>
+</div>
+<div class="track-item">
+  <div class="track-cover-container">
+      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+      <button class="play-button"><i class="fa fa-play"></i></button>
+  </div>
+  <div class="track-info">
+      <p class="track-title">Track 3</p>
+      <p class="track-artist">Artist 3</p>
+  </div>
+</div>
+<div class="track-item">
+  <div class="track-cover-container">
+      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+      <button class="play-button"><i class="fa fa-play"></i></button>
+  </div>
+  <div class="track-info">
+      <p class="track-title">Track 1</p>
+      <p class="track-artist">Artist 1</p>
+  </div>
+</div>
+<div class="track-item">
+  <div class="track-cover-container">
+      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+      <button class="play-button"><i class="fa fa-play"></i></button>
+  </div>
+  <div class="track-info">
+      <p class="track-title">Track 2</p>
+      <p class="track-artist">Artist 2</p>
+  </div>
+</div>
+<div class="track-item">
+  <div class="track-cover-container">
+      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
+      <button class="play-button"><i class="fa fa-play"></i></button>
+  </div>
+  <div class="track-info">
+      <p class="track-title">Track 3</p>
+      <p class="track-artist">Artist 3</p>
+  </div>
+</div>
+      <!-- Додайте більше елементів, якщо потрібно -->
+  </div>
+
+
+  </div>
+  
+  
+  
+
+  <script>
+
+
+    document.getElementById('menuButton').addEventListener('click', function() {
+    document.getElementById('menuPanel').classList.toggle('open');
+    });
+    // Треки
+    const tracks = [
+      'Трек 1',
+      'Трек 2',
+      'Трек 3',
+      'Трек 4',
+    ];
+
+    let currentTrackIndex = 0;
+    let isPlaying = false;
+    let repeatMode = 'none'; // none | single | all
+
+    // Елементи
+    const playPauseButton = document.getElementById('playPause');
+    const prevTrackButton = document.getElementById('prevTrack');
+    const nextTrackButton = document.getElementById('nextTrack');
+    const repeatModeButton = document.getElementById('repeatMode');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const menuButton = document.getElementById('menuButton');
+    const menuButtons = document.getElementById('menuButtons');
+    const searchPageButton = document.getElementById('searchPage');
+    const uploadPageButton = document.getElementById('uploadPage');
+    const homePageButton = document.getElementById('homePage');
+
+    // Відтворення/Пауза
+    playPauseButton.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      playPauseButton.textContent = isPlaying ? '⏸️ Пауза' : '▶️ Пуск';
+      console.log(isPlaying ? `Відтворення ${tracks[currentTrackIndex]}` : 'Пауза');
+    });
+
+    // Наступний трек
+    nextTrackButton.addEventListener('click', () => {
+      currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+      console.log(`Наступний трек: ${tracks[currentTrackIndex]}`);
+      isPlaying = true;
+      playPauseButton.textContent = '⏸️ Пауза';
+    });
+
+    // Попередній трек
+    prevTrackButton.addEventListener('click', () => {
+      currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+      console.log(`Попередній трек: ${tracks[currentTrackIndex]}`);
+      isPlaying = true;
+      playPauseButton.textContent = '⏸️ Пауза';
+    });
+
+    // Повтор
+    repeatModeButton.addEventListener('click', () => {
+      if (repeatMode === 'none') {
+        repeatMode = 'single';
+        repeatModeButton.textContent = '🔂 Повтор одного';
+      } else if (repeatMode === 'single') {
+        repeatMode = 'all';
+        repeatModeButton.textContent = '🔁 Повтор усіх';
+      } else {
+        repeatMode = 'none';
+        repeatModeButton.textContent = '🔁 Повтор вимкнено';
+      }
+      console.log(`Режим повтору: ${repeatMode}`);
+    });
+
+    // Гучність
+    volumeSlider.addEventListener('input', (event) => {
+      const volume = event.target.value;
+      console.log(`Гучність: ${volume}`);
+    });
+
+    // Меню
+    menuButton.addEventListener('click', () => {
+      const isMenuVisible = menuButtons.style.display === 'flex';
+      menuButtons.style.display = isMenuVisible ? 'none' : 'flex';
+    });
+
+    // Навігація між сторінками
+    searchPageButton.addEventListener('click', () => {
+      console.log('Перехід на сторінку Пошуку');
+    });
+
+    uploadPageButton.addEventListener('click', () => {
+      console.log('Перехід на сторінку Завантаження');
+    });
+
+    homePageButton.addEventListener('click', () => {
+      console.log('Перехід на Головну сторінку');
+    });
+  </script>
+</body>
+</html>
+
+
+

@@ -1,0 +1,10 @@
+/* You can add global styles to this file, and also import other style files */
+body {
+    margin: 0;   /* Видаляємо всі зовнішні відступи */
+    padding: 0;  /* Видаляємо всі внутрішні відступи */
+    font-family: Arial, sans-serif;
+    background-color: #000000;
+    height: 100%; /* Висота сторінки 100% */
+    overflow-x: hidden; /* Приховуємо горизонтальну смугу прокрутки */
+    overflow-y: hidden; /* Приховуємо вертикальну смугу прокрутки */
+  }
