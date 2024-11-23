@@ -1,11 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="home.component.css">
-</head>
-<body>
   <h1>Media Player</h1>
 
   <!-- Контейнер для управління плеєром, фіксований внизу -->
@@ -30,16 +22,19 @@
     <!-- Панель меню (ліва) -->
     <div id="menuPanel" class="menu-panel" [class.open]="isMenuOpen">
       <div class="menu-buttons">
-        <button class="menu-item">Home</button>
-        <button class="menu-item">Search</button>
-        <button class="menu-item">Upload</button>
+        <button class="menu-item" routerLink="/">Home</button>
+        <button class="menu-item" routerLink="/upload">Upload</button>
       </div>
     </div>
   
-    <!-- Кнопка для відкриття меню (залишатиметься на одному місці) -->
+    <!-- Кнопка для відкриття меню -->
     <button id="menuButton" class="menu-button" (click)="toggleMenu()">
-      <i class="fa fa-bars"></i> 
+      <i class="fa fa-bars"></i>
     </button>
+  </div>
+  
+  <!-- Контейнер для відображення вмісту -->
+  <router-outlet></router-outlet>
   
     <!-- Пошук (право верх) -->
     <div class="searchPage">
@@ -272,7 +267,6 @@
   </div>
 
 
-  </div>
   
   
   
@@ -370,8 +364,5 @@
       console.log('Перехід на Головну сторінку');
     });
   </script>
-</body>
-</html>
-
 
 

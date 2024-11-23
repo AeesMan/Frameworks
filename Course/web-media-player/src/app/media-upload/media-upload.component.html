@@ -1,1 +1,75 @@
-<p>media-upload works!</p>
+<h1>Upload</h1>
+
+<div>
+  <h1>Upload Media</h1>
+  <form (submit)="uploadFile()">
+    <div>
+      <label>Name:</label>
+      <input type="text" [(ngModel)]="name" name="name" required />
+    </div>
+    <div>
+      <label>Author:</label>
+      <textarea [(ngModel)]="author" name="author"></textarea>
+    </div>
+    <div>
+      <label>File:</label>
+      <input type="file" (change)="onFileChange($event)" />
+    </div>
+    <button type="submit">Upload</button>
+  </form>
+</div>
+
+
+<div class="main-container" [class.menu-open]="isMenuOpen">
+  <!-- Панель меню (ліва) -->
+  <div id="menuPanel" class="menu-panel" [class.open]="isMenuOpen">
+    <div class="menu-buttons">
+      <button class="menu-item" routerLink="/">Home</button>
+      <button class="menu-item" routerLink="/upload">Upload</button>
+    </div>
+  </div>
+
+  <!-- Кнопка для відкриття меню -->
+  <button id="menuButton" class="menu-button" (click)="toggleMenu()">
+    <i class="fa fa-bars"></i>
+  </button>
+</div>
+
+<!-- Контейнер для відображення вмісту -->
+<router-outlet></router-outlet>
+
+
+
+
+    <script>
+
+
+      document.getElementById('menuButton').addEventListener('click', function() {
+      document.getElementById('menuPanel').classList.toggle('open');
+      });
+
+      const menuButton = document.getElementById('menuButton');
+      const menuButtons = document.getElementById('menuButtons');
+      const uploadPageButton = document.getElementById('uploadPage');
+      const homePageButton = document.getElementById('homePage');
+
+
+      // Меню
+    menuButton.addEventListener('click', () => {
+      const isMenuVisible = menuButtons.style.display === 'flex';
+      menuButtons.style.display = isMenuVisible ? 'none' : 'flex';
+    });
+
+    // Навігація між сторінками
+    searchPageButton.addEventListener('click', () => {
+      console.log('Перехід на сторінку Пошуку');
+    });
+
+    uploadPageButton.addEventListener('click', () => {
+      console.log('Перехід на сторінку Завантаження');
+    });
+
+    homePageButton.addEventListener('click', () => {
+      console.log('Перехід на Головну сторінку');
+    });
+  </script>

@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
 import { SearchComponent } from '../search/search.component';
 import { MediaFilterComponent } from '../media-filter/media-filter.component';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  imports: [SearchComponent, MediaFilterComponent], // Імпортуйте Standalone компоненти
+  imports: [SearchComponent, MediaFilterComponent, RouterModule],
 })
 export class HomeComponent {
 

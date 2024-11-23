@@ -1,29 +1,52 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-media-upload',
   standalone: true,
-  template: `
-    <form>
-      <input type="text" placeholder="Title" [(ngModel)]="mediaTitle" name="title" />
-      <textarea placeholder="Description" [(ngModel)]="mediaDescription" name="description"></textarea>
-      <input type="file" (change)="onFileSelected($event)" />
-      <button (click)="onUpload()">Upload</button>
-    </form>
-  `,
-  imports: [FormsModule], // Додати FormsModule
+  templateUrl: './media-upload.component.html',
+  styleUrls: ['./media-upload.component.css'],
+  imports: [FormsModule, RouterModule],
 })
-export class MediaUploadComponent {
-  mediaTitle = '';
-  mediaDescription = '';
-  selectedFile: File | null = null;
 
-  onFileSelected(event: any) {
-    this.selectedFile = event.target.files[0];
+
+export class MediaUploadComponent {
+  name = '';
+  author = '';
+  file: File | null = null;
+
+  constructor(private http: HttpClient) {}
+
+  onFileChange(event: any) {
+    this.file = event.target.files[0];
   }
 
-  onUpload() {
-    console.log('Uploading:', this.mediaTitle, this.mediaDescription, this.selectedFile);
+  isMenuOpen: boolean = false;
+  toggleMenu(): void {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  uploadFile() {
+    if (this.file) {
+      const formData = new FormData();
+      formData.append('file', this.file);
+      formData.append('name', this.name);
+      formData.append('author', this.author);
+
+      this.http.post('http://localhost:5000/upload', formData).subscribe({
+        next: (response) => {
+          console.log('Upload successful', response);
+          alert('File uploaded successfully!');
+        },
+        error: (err) => {
+          console.error('Upload error', err);
+          alert('File upload failed.');
+        }
+      });
+    } else {
+      alert('Please select a file to upload.');
+    }
   }
 }
