@@ -1,289 +1,99 @@
-  <h1>Media Player</h1>
+<h1>Media Player</h1> 
 
-  <!-- Контейнер для управління плеєром, фіксований внизу -->
-  <div class="controls-container">
-    <button id="prevTrack">
-        <i class="fa fa-backward"></i> <!-- "Попередній трек" -->
-      </button>
-      <button id="playPause">
-        <i class="fa fa-play"></i> <!-- "Старт" -->
-      </button>
-      <button id="nextTrack">
-        <i class="fa fa-forward"></i> <!-- "Наступний трек" -->
-      </button>
-      <button id="repeatMode">
-        <i class="fa-solid fa-rotate-right"></i><!-- "Повтор" -->
-      </button>
-        <i class="fa-solid fa-music"></i><!-- "Звук" -->
-        <input id="volumeSlider" type="range" min="0" max="1" step="0.1" value="0.5">
+<!-- Контейнер для управління плеєром, фіксований внизу -->
+<div class="controls-container">
+  <button id="prevTrack">
+    <i class="fa fa-backward"></i> <!-- "Попередній трек" -->
+  </button>
+  <button id="playPause">
+    <i class="fa fa-play"></i> <!-- "Старт" -->
+  </button>
+  <button id="nextTrack">
+    <i class="fa fa-forward"></i> <!-- "Наступний трек" -->
+  </button>
+  <button id="repeatMode">
+    <i class="fa-solid fa-rotate-right"></i><!-- "Повтор" -->
+  </button>
+  <i class="fa-solid fa-music"></i><!-- "Звук" -->
+  <input id="volumeSlider" type="range" min="0" max="1" step="0.1" value="0.5">
+</div>
+
+<div class="main-container" [class.menu-open]="isMenuOpen">
+  <!-- Панель меню (ліва) -->
+  <div id="menuPanel" class="menu-panel" [class.open]="isMenuOpen">
+    <div class="menu-buttons">
+      <button class="menu-item" routerLink="/">Home</button>
+      <button class="menu-item" routerLink="/upload">Upload</button>
+    </div>
   </div>
 
-  <div class="main-container" [class.menu-open]="isMenuOpen">
-    <!-- Панель меню (ліва) -->
-    <div id="menuPanel" class="menu-panel" [class.open]="isMenuOpen">
-      <div class="menu-buttons">
-        <button class="menu-item" routerLink="/">Home</button>
-        <button class="menu-item" routerLink="/upload">Upload</button>
-      </div>
-    </div>
-  
-    <!-- Кнопка для відкриття меню -->
-    <button id="menuButton" class="menu-button" (click)="toggleMenu()">
-      <i class="fa fa-bars"></i>
-    </button>
-  </div>
-  
-  <!-- Контейнер для відображення вмісту -->
-  <router-outlet></router-outlet>
-  
-    <!-- Пошук (право верх) -->
-    <div class="searchPage">
-      <input type="text" placeholder="Search...">
-      <button class="searchButton">
-        <i class="fa fa-search"></i>
-      </button>
-    </div>
-  
-    <!-- Контент -->
-    <div class="content">
-      <!-- Основний контент тут -->
-      <p>This is the content of the webpage.</p>
-    </div>
+  <!-- Кнопка для відкриття меню -->
+  <button id="menuButton" class="menu-button" (click)="toggleMenu()">
+    <i class="fa fa-bars"></i>
+  </button>
+</div>
 
+<!-- Контейнер для відображення вмісту -->
+<router-outlet></router-outlet>
 
-    <div class="track-list">
-      <h2>Треки</h2>
-      <div class="track-item">
-          <div class="track-cover-container">
-              <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-              <button class="play-button"><i class="fa fa-play"></i></button>
-          </div>
-          <div class="track-info">
-              <p class="track-title">Track 1</p>
-              <p class="track-artist">Artist 1</p>
-          </div>
-      </div>
-      <div class="track-item">
-          <div class="track-cover-container">
-              <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-              <button class="play-button"><i class="fa fa-play"></i></button>
-          </div>
-          <div class="track-info">
-              <p class="track-title">Track 2</p>
-              <p class="track-artist">Artist 2</p>
-          </div>
-      </div>
-      <div class="track-item">
-          <div class="track-cover-container">
-              <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-              <button class="play-button"><i class="fa fa-play"></i></button>
-          </div>
-          <div class="track-info">
-              <p class="track-title">Track 3</p>
-              <p class="track-artist">Artist 3</p>
-          </div>
-      </div>
-      <div class="track-item">
-        <div class="track-cover-container">
-            <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-            <button class="play-button"><i class="fa fa-play"></i></button>
-        </div>
-        <div class="track-info">
-            <p class="track-title">Track 1</p>
-            <p class="track-artist">Artist 1</p>
-        </div>
-    </div>
-    <div class="track-item">
-        <div class="track-cover-container">
-            <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-            <button class="play-button"><i class="fa fa-play"></i></button>
-        </div>
-        <div class="track-info">
-            <p class="track-title">Track 2</p>
-            <p class="track-artist">Artist 2</p>
-        </div>
-    </div>
-    <div class="track-item">
-        <div class="track-cover-container">
-            <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-            <button class="play-button"><i class="fa fa-play"></i></button>
-        </div>
-        <div class="track-info">
-            <p class="track-title">Track 3</p>
-            <p class="track-artist">Artist 3</p>
-        </div>
-    </div>
-    <div class="track-item">
-      <div class="track-cover-container">
-          <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-          <button class="play-button"><i class="fa fa-play"></i></button>
-      </div>
-      <div class="track-info">
-          <p class="track-title">Track 1</p>
-          <p class="track-artist">Artist 1</p>
-      </div>
-  </div>
-  <div class="track-item">
-      <div class="track-cover-container">
-          <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-          <button class="play-button"><i class="fa fa-play"></i></button>
-      </div>
-      <div class="track-info">
-          <p class="track-title">Track 2</p>
-          <p class="track-artist">Artist 2</p>
-      </div>
-  </div>
-  <div class="track-item">
-      <div class="track-cover-container">
-          <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-          <button class="play-button"><i class="fa fa-play"></i></button>
-      </div>
-      <div class="track-info">
-          <p class="track-title">Track 3</p>
-          <p class="track-artist">Artist 3</p>
-      </div>
-  </div>
-  <div class="track-item">
+<!-- Пошук (право верх) -->
+<div class="searchPage">
+  <input type="text" placeholder="Search...">
+  <button class="searchButton">
+    <i class="fa fa-search"></i>
+  </button>
+</div>
+
+<!-- Контент -->
+<div class="content">
+  <!-- Основний контент тут -->
+  <p>This is the content of the webpage.</p>
+</div>
+
+<div class="track-list">
+  <h2>Треки</h2>
+  <div *ngFor="let track of tracks" class="track-item">
     <div class="track-cover-container">
-        <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-        <button class="play-button"><i class="fa fa-play"></i></button>
+      <img src="https://shkoly.com.ua/wp-content/uploads/2023/09/reklama.jpeg" class="track-cover" />
+      <button class="play-button" (click)="togglePlay(track)">
+        <i class="fa fa-play"></i>
+      </button>
     </div>
     <div class="track-info">
-        <p class="track-title">Track 1</p>
-        <p class="track-artist">Artist 1</p>
+      <p class="track-title">{{ track.name }}</p>
+      <p class="track-artist">{{ track.author }}</p>
     </div>
-</div>
-<div class="track-item">
-    <div class="track-cover-container">
-        <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-        <button class="play-button"><i class="fa fa-play"></i></button>
-    </div>
-    <div class="track-info">
-        <p class="track-title">Track 2</p>
-        <p class="track-artist">Artist 2</p>
-    </div>
-</div>
-<div class="track-item">
-    <div class="track-cover-container">
-        <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-        <button class="play-button"><i class="fa fa-play"></i></button>
-    </div>
-    <div class="track-info">
-        <p class="track-title">Track 3</p>
-        <p class="track-artist">Artist 3</p>
-    </div>
-</div>
-<div class="track-item">
-  <div class="track-cover-container">
-      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-      <button class="play-button"><i class="fa fa-play"></i></button>
-  </div>
-  <div class="track-info">
-      <p class="track-title">Track 1</p>
-      <p class="track-artist">Artist 1</p>
   </div>
 </div>
-<div class="track-item">
-  <div class="track-cover-container">
-      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-      <button class="play-button"><i class="fa fa-play"></i></button>
-  </div>
-  <div class="track-info">
-      <p class="track-title">Track 2</p>
-      <p class="track-artist">Artist 2</p>
-  </div>
-</div>
-<div class="track-item">
-  <div class="track-cover-container">
-      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-      <button class="play-button"><i class="fa fa-play"></i></button>
-  </div>
-  <div class="track-info">
-      <p class="track-title">Track 3</p>
-      <p class="track-artist">Artist 3</p>
-  </div>
-</div>
-<div class="track-item">
-  <div class="track-cover-container">
-      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-      <button class="play-button"><i class="fa fa-play"></i></button>
-  </div>
-  <div class="track-info">
-      <p class="track-title">Track 1</p>
-      <p class="track-artist">Artist 1</p>
-  </div>
-</div>
-<div class="track-item">
-  <div class="track-cover-container">
-      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-      <button class="play-button"><i class="fa fa-play"></i></button>
-  </div>
-  <div class="track-info">
-      <p class="track-title">Track 2</p>
-      <p class="track-artist">Artist 2</p>
-  </div>
-</div>
-<div class="track-item">
-  <div class="track-cover-container">
-      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-      <button class="play-button"><i class="fa fa-play"></i></button>
-  </div>
-  <div class="track-info">
-      <p class="track-title">Track 3</p>
-      <p class="track-artist">Artist 3</p>
-  </div>
-</div>
-<div class="track-item">
-  <div class="track-cover-container">
-      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-      <button class="play-button"><i class="fa fa-play"></i></button>
-  </div>
-  <div class="track-info">
-      <p class="track-title">Track 1</p>
-      <p class="track-artist">Artist 1</p>
-  </div>
-</div>
-<div class="track-item">
-  <div class="track-cover-container">
-      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-      <button class="play-button"><i class="fa fa-play"></i></button>
-  </div>
-  <div class="track-info">
-      <p class="track-title">Track 2</p>
-      <p class="track-artist">Artist 2</p>
-  </div>
-</div>
-<div class="track-item">
-  <div class="track-cover-container">
-      <img src="https://via.placeholder.com/50" alt="Cover" class="track-cover">
-      <button class="play-button"><i class="fa fa-play"></i></button>
-  </div>
-  <div class="track-info">
-      <p class="track-title">Track 3</p>
-      <p class="track-artist">Artist 3</p>
-  </div>
-</div>
-      <!-- Додайте більше елементів, якщо потрібно -->
-  </div>
 
+<div class="video-list">
+  <h2>Відео</h2>
+  <div *ngFor="let track of tracks" class="video-item">
+    <div class="video-cover-container">
+      <img src="https://shkoly.com.ua/wp-content/uploads/2023/09/reklama.jpeg" class="video-cover" />
+      <button class="play-button" (click)="togglePlay(track)">
+        <i class="fa fa-play"></i>
+      </button>
+    </div>
+    <div class="video-info">
+      <p class="video-title">{{ track.name }}</p>
+      <p class="video-artist">{{ track.author }}</p>
+    </div>
+  </div>
+</div>
 
-  
-  
-  
+<audio #audioElement controls></audio>
 
   <script>
 
+    // Отримуємо усі кнопки play для кожного треку
+    const playButtons = document.querySelectorAll('.play-button');
+    let currentTrack = null;
 
     document.getElementById('menuButton').addEventListener('click', function() {
     document.getElementById('menuPanel').classList.toggle('open');
     });
-    // Треки
-    const tracks = [
-      'Трек 1',
-      'Трек 2',
-      'Трек 3',
-      'Трек 4',
-    ];
+  
 
     let currentTrackIndex = 0;
     let isPlaying = false;

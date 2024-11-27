@@ -85,7 +85,15 @@ app.get("/tracks", async (req, res) => {
 });
 
 // Сервіс для статичних файлів
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
+  setHeaders: (res, path) => {
+    if (path.endsWith(".mp3")) {
+      res.set("Content-Type", "audio/mpeg");
+    }
+  }
+}));
+
+
 
 // Сервер
 const PORT = 5000;
