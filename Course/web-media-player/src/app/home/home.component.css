@@ -9,21 +9,78 @@ h1 {
   
 /* Контейнер для кнопок */
 .controls-container {
-    position: fixed;
-    bottom: 0; /* Фіксувати знизу */
-    left: 0; /* Почати від лівого краю */
-    width: 100%; /* Розтягнути по всій ширині */
-    background-color: #201f1f;
-    padding: 15px;
-    border-top: 2px solid #7a1a1a; /* Обводка зверху панелі */
-    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1); /* Тінь зверху */
-    z-index: 100; /* Перекриває інші елементи */
-    display: flex;
-    justify-content: center; /* Центрує кнопки */
+  position: fixed;
+  bottom: 0; /* Фіксувати знизу */
+  left: 0; /* Почати від лівого краю */
+  width: 100%; /* Розтягнути по всій ширині */
+  background-color: #201f1f;
+  padding: 15px;
+  border-top: 2px solid #7a1a1a; /* Обводка зверху панелі */
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1); /* Тінь зверху */
+  z-index: 100; /* Перекриває інші елементи */
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Інтервал 5 пікселів між кнопками */
+}
+
+  .controls-container button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
     align-items: center;
-    gap: 5px; /* Інтервал 5 пікселів між кнопками */
   }
-  
+
+  .controls-container input[type="range"] {
+    -webkit-appearance: none; /* Вимикає стандартне відображення слайдера в браузерах */
+    appearance: none;
+    width: 100px; /* Розтягується на всю ширину контейнера */
+    height: 2px; /* Висота слайдера */
+    background: #888; /* Колір фону слайдера */
+    border-radius: 5px; /* Округлені кути */
+    outline: none; /* Без обведення при фокусі */
+    transition: background 0.3s; /* Анімація зміни кольору при взаємодії */
+    margin-right: 50px;
+}
+
+.controls-container input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Стандартний вигляд thumb для Webkit браузерів */
+    appearance: none;
+    width: 10px; /* Ширина thumb */
+    height: 10px; /* Висота thumb */
+    background: #ff4d4d; /* Колір thumb */
+    border-radius: 50%; /* Кругла форма */
+    cursor: pointer; /* Курсор при наведенні */
+    transition: background 0.3s; /* Анімація зміни кольору thumb */
+}
+  .controls-container input[type="range"]:hover {
+    background: #555; /* Тінь на фон слайдера при наведенні */
+}
+
+.controls-container input[type="range"]:focus {
+    outline: none; /* Вимикає обведення при фокусі */
+}
+
+.controls-container input[type="range"]:active::-webkit-slider-thumb {
+    background: #ff3333; /* Колір thumb при натисканні */
+}
+/* Обмеження ширини контейнера для назви треку */
+.track-info {
+  flex-grow: 0;        /* Забороняємо розтягування */
+  color: white;
+  width: 100px;         /* Встановлюємо фіксовану ширину 50px */
+  overflow: hidden;    /* Якщо текст не вміщається, приховуємо його */
+  margin-left: 20px;
+}
+
+/* Для трек-тайму додатково встановлюємо маргін, щоб було відстань від назви */
+.track-time {
+  font-size: 14px;
+  color: #fff;
+  margin-right: 50%;
+}
+
   /* Кнопки */
   button {
     background-color: #201f1f;
@@ -151,6 +208,11 @@ h1 {
     cursor: pointer;
 }
 
+.track-item.active {
+  background-color: #444;  /* Світлий фон для виділення */
+  border: 2px solid #007bff;   /* Синя рамка для активного треку */
+}
+
 .track-item:hover {
     background-color: #444;
 }
@@ -184,6 +246,10 @@ h1 {
     color: #bbb;
     margin: 0;
 }
+
+
+
+
 
 .video-list {
   position: fixed;
@@ -282,28 +348,28 @@ margin-right: 10px;
 
 
 
-  /* Панель меню */
-  .menu-panel {
-    position: fixed;
-    top: 0;
-    left: -150px; /* Початково прихована з лівого боку */
-    width: 150px;
-    height: 20%;
-    background-color: #000000;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    transition: left 0.3s ease; /* Анімація для виділення панелі */
-    z-index: 100; /* Перекриває інші елементи */
-  }
+/* Панель меню */
+.menu-panel {
+  position: fixed;
+  top: 0;
+  left: -150px; /* Початково прихована з лівого боку */
+  width: 150px;
+  height: 20%;
+  background-color: #000000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  transition: left 0.3s ease; /* Анімація для виділення панелі */
+  z-index: 100; /* Перекриває інші елементи */
+}
   
-  /* Відкриття панелі меню */
-  .menu-panel.open {
-    left: 0; /* При відкритті панель рухається на 0 */
-  }
+/* Відкриття панелі меню */
+.menu-panel.open {
+  left: 0; /* При відкритті панель рухається на 0 */
+}
   
-  /* Кнопка меню (залишатиметься на одному місці) */
-  .menu-button {
+/* Кнопка меню (залишатиметься на одному місці) */
+.menu-button {
     position: fixed;
     top: 10px;  /* Відстань від верху */
     left: 10px;  /* Відстань від лівого краю */
@@ -313,68 +379,68 @@ margin-right: 10px;
     padding: 10px;
     font-size: 20px;
     cursor: pointer;
-    z-index: 101; /* Поверх панелі меню */
-  }
+  z-index: 101; /* Поверх панелі меню */
+}
   
-  /* Кнопки меню */
-  .menu-buttons {
-    margin-top: 80px;
-  }
+/* Кнопки меню */
+.menu-buttons {
+  margin-top: 80px;
+}
   
-  .menu-item {
-    background-color: #333;
-    color: white;
-    border: none;
-    padding: 15px;
-    text-align: left;
-    width: 100%;
-    cursor: pointer;
-    font-size: 16px;
-  }
+.menu-item {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 15px;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  font-size: 16px;
+}
   
-  .menu-item:hover {
-    background-color: #555;
-  }
+.menu-item:hover {
+  background-color: #555;
+}
   
-  /* Панель пошуку */
-  .searchPage {
-    position: absolute;
-    top: 50px;
-    right: 20px;
-    display: flex;
-    align-items: center;
-  }
+/* Панель пошуку */
+.searchPage {
+  position: absolute;
+  top: 50px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+}
   
-  .searchPage input {
-    padding: 5px;
-    margin-right: 5px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
+.searchPage input {
+  padding: 5px;
+  margin-right: 5px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
   
-  .searchButton {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    font-size: 20px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
+.searchButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
   
-  /* Головна сторінка */
-  .homePage {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-  }
+/* Головна сторінка */
+.homePage {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
   
-  /* Вміст */
-  .content {
-    margin-left: 0;
-    margin-right: 0;
-    padding: 20px;
-    flex-grow: 1;
-  }
+/* Вміст */
+.content {
+margin-left: 0;
+  margin-right: 0;
+  padding: 20px;
+  flex-grow: 1;
+}
   

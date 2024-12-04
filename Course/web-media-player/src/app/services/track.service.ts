@@ -7,6 +7,7 @@ export interface Track {
   name: string;
   author: string;
   filePath: string;
+  mimeType: string;
 }
 
 @Injectable({
@@ -20,4 +21,5 @@ export class TrackService {
   getTracks(): Observable<Track[]> {
     return this.http.get<Track[]>(this.apiUrl);
   }
+  
 }

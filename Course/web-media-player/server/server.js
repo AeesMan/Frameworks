@@ -45,7 +45,18 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ["audio/mpeg", "audio/wav", "video/mp4"];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only audio and video files are allowed!"), false);
+    }
+  },
+});
+
 
 // Ендпоінт для завантаження треків
 app.post("/upload", upload.single("file"), async (req, res) => {
@@ -63,6 +74,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       name,
       author,
       filePath: req.file.path,
+      mimeType
     });
 
     await track.save();
@@ -89,9 +101,14 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
   setHeaders: (res, path) => {
     if (path.endsWith(".mp3")) {
       res.set("Content-Type", "audio/mpeg");
+    } else if (path.endsWith(".mp4")) {
+      res.set("Content-Type", "video/mp4");
+    } else if (path.endsWith(".wav")) {
+      res.set("Content-Type", "audio/wav");
     }
   }
 }));
+
 
 
 

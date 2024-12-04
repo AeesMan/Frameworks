@@ -20,8 +20,17 @@ export class MediaUploadComponent {
   constructor(private http: HttpClient) {}
 
   onFileChange(event: any) {
-    this.file = event.target.files[0];
+    const file = event.target.files[0];
+    const allowedTypes = ['audio/mpeg', 'audio/wav', 'video/mp4'];
+  
+    if (file && allowedTypes.includes(file.type)) {
+      this.file = file;
+    } else {
+      alert('Please select a valid audio or video file.');
+      this.file = null;
+    }
   }
+  
 
   isMenuOpen: boolean = false;
   toggleMenu(): void {

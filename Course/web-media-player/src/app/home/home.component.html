@@ -2,21 +2,42 @@
 
 <!-- Контейнер для управління плеєром, фіксований внизу -->
 <div class="controls-container">
-  <button id="prevTrack">
+    <!-- Нижня панель -->
+    <div class="track-info">
+      <span class="track-title">{{ currentTrack?.name }}</span>
+    </div>
+    <div class="track-time">
+      <span>{{ currentTime }}</span> / <span>{{ duration }}</span>
+    </div>
+
+
+  <button (click)="playPreviousTrack()">
     <i class="fa fa-backward"></i> <!-- "Попередній трек" -->
   </button>
-  <button id="playPause">
-    <i class="fa fa-play"></i> <!-- "Старт" -->
-  </button>
-  <button id="nextTrack">
+  <button (click)="togglePlayPause()">
+    <i [class]="isPlaying ? 'fa fa-pause' : 'fa fa-play'"></i> <!-- Зміна іконки -->
+  </button>  
+  <button (click)="playNextTrack()">
     <i class="fa fa-forward"></i> <!-- "Наступний трек" -->
   </button>
-  <button id="repeatMode">
-    <i class="fa-solid fa-rotate-right"></i><!-- "Повтор" -->
+  <button (click)="toggleRepeatMode()"> 
+    <i [ngClass]="{
+          'fa fa-times': repeatMode === 'none', 
+          'fa-solid fa-1': repeatMode === 'single',
+          'fa-solid fa-repeat': repeatMode === 'all'
+        }"></i><!-- "Повтор" -->
   </button>
-  <i class="fa-solid fa-music"></i><!-- "Звук" -->
-  <input id="volumeSlider" type="range" min="0" max="1" step="0.1" value="0.5">
+  
+  <input 
+  id="volumeSlider" 
+  type="range" 
+  min="0" 
+  max="1" 
+  step="0.01" 
+  value="0.2" 
+  (input)="setVolume($event)">
 </div>
+
 
 <div class="main-container" [class.menu-open]="isMenuOpen">
   <!-- Панель меню (ліва) -->
@@ -52,7 +73,8 @@
 
 <div class="track-list">
   <h2>Треки</h2>
-  <div *ngFor="let track of tracks" class="track-item">
+  <div *ngFor="let track of tracks" class="track-item"
+       [ngClass]="{'active': track === currentTrack}">
     <div class="track-cover-container">
       <img src="https://shkoly.com.ua/wp-content/uploads/2023/09/reklama.jpeg" class="track-cover" />
       <button class="play-button" (click)="togglePlay(track)">
@@ -66,21 +88,24 @@
   </div>
 </div>
 
+
 <div class="video-list">
   <h2>Відео</h2>
-  <div *ngFor="let track of tracks" class="video-item">
+  <div *ngFor="let vid of Video" class="video-item"
+      [ngClass]="{'active': vid === currentTrack}">
     <div class="video-cover-container">
       <img src="https://shkoly.com.ua/wp-content/uploads/2023/09/reklama.jpeg" class="video-cover" />
-      <button class="play-button" (click)="togglePlay(track)">
+      <button class="play-button" (click)="togglePlay(vid)">
         <i class="fa fa-play"></i>
       </button>
     </div>
     <div class="video-info">
-      <p class="video-title">{{ track.name }}</p>
-      <p class="video-artist">{{ track.author }}</p>
+      <p class="video-title">{{ vid.name }}</p>
+      <p class="video-artist">{{ vid.author }}</p>
     </div>
   </div>
 </div>
+
 
 <audio #audioElement controls></audio>
 
@@ -97,7 +122,6 @@
 
     let currentTrackIndex = 0;
     let isPlaying = false;
-    let repeatMode = 'none'; // none | single | all
 
     // Елементи
     const playPauseButton = document.getElementById('playPause');
@@ -110,45 +134,6 @@
     const searchPageButton = document.getElementById('searchPage');
     const uploadPageButton = document.getElementById('uploadPage');
     const homePageButton = document.getElementById('homePage');
-
-    // Відтворення/Пауза
-    playPauseButton.addEventListener('click', () => {
-      isPlaying = !isPlaying;
-      playPauseButton.textContent = isPlaying ? '⏸️ Пауза' : '▶️ Пуск';
-      console.log(isPlaying ? `Відтворення ${tracks[currentTrackIndex]}` : 'Пауза');
-    });
-
-    // Наступний трек
-    nextTrackButton.addEventListener('click', () => {
-      currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
-      console.log(`Наступний трек: ${tracks[currentTrackIndex]}`);
-      isPlaying = true;
-      playPauseButton.textContent = '⏸️ Пауза';
-    });
-
-    // Попередній трек
-    prevTrackButton.addEventListener('click', () => {
-      currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
-      console.log(`Попередній трек: ${tracks[currentTrackIndex]}`);
-      isPlaying = true;
-      playPauseButton.textContent = '⏸️ Пауза';
-    });
-
-    // Повтор
-    repeatModeButton.addEventListener('click', () => {
-      if (repeatMode === 'none') {
-        repeatMode = 'single';
-        repeatModeButton.textContent = '🔂 Повтор одного';
-      } else if (repeatMode === 'single') {
-        repeatMode = 'all';
-        repeatModeButton.textContent = '🔁 Повтор усіх';
-      } else {
-        repeatMode = 'none';
-        repeatModeButton.textContent = '🔁 Повтор вимкнено';
-      }
-      console.log(`Режим повтору: ${repeatMode}`);
-    });
-
     // Гучність
     volumeSlider.addEventListener('input', (event) => {
       const volume = event.target.value;
