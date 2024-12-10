@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SearchComponent } from '../search/search.component';
 import { MediaFilterComponent } from '../media-filter/media-filter.component';
@@ -17,14 +17,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
   isMenuOpen: boolean = false;
   tracks: Track[] = [];
   currentTrack: Track | null = null;
-  @ViewChild('audioElement') audioElement?: ElementRef<HTMLAudioElement>; // Може бути undefined
+  audioElement?: HTMLAudioElement; // Посилання на аудіоелемент
   currentTrackIndex: number = 0;
   isPlaying: boolean = false;
   repeatMode: 'none' | 'single' | 'all' = 'none';
   currentTime: string = '0:00';  // Поточний час
   duration: string = '0:00';     // Загальна тривалість треку
-  Video: Track[] = [];
-
+  currentTimeInSeconds: number = 0; // Поточний час в секундах
+  durationInSeconds: number = 0; // Тривалість треку в секундах
 
   constructor(private trackService: TrackService) {}
 
@@ -33,25 +33,28 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    if (!this.audioElement) {
-      console.error('Audio element not found!');
-      return;
-    }
+    // Створюємо аудіоелемент програмно
+    this.audioElement = new Audio();
+    this.audioElement.style.display = 'none'; // Приховуємо аудіоелемент
+    document.body.appendChild(this.audioElement); // Додаємо аудіоелемент до DOM
 
-    const audio = this.audioElement.nativeElement;
-
-    audio.addEventListener('ended', () => {
+    // Додаємо обробники подій
+    this.audioElement.addEventListener('ended', () => {
       if (this.repeatMode === 'single') {
-        audio.currentTime = 0;
-        audio.play();
+        this.audioElement!.currentTime = 0;
+        this.audioElement!.play();
       } else {
         this.playNextTrack();
       }
     });
 
-    // Оновлюємо час кожну секунду
-    audio.ontimeupdate = () => {
-      this.updateTime(audio);
+    this.audioElement.ontimeupdate = () => {
+      this.updateTime(this.audioElement!);
+    };
+
+    this.audioElement.onloadedmetadata = () => {
+      this.durationInSeconds = this.audioElement!.duration;
+      this.duration = this.formatTime(this.audioElement!.duration);
     };
   }
 
@@ -61,16 +64,19 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   loadTracks(): void { 
     this.trackService.getTracks().subscribe(
-      (data) => {
-        // Спочатку ініціалізуємо обидва масиви
-        this.Video = [...data]; 
-        this.tracks = [...data]; 
+      (data: any) => {
+        // Map the tracks and ensure `id` is correctly assigned from `_id`
+        this.tracks = data.map((track: any) => ({
+          id: track.id, // Assign `id` from `_id`
+          name: track.name,
+          author: track.author,
+          filePath: track.filePath,
+        }));
   
-        // Потім фільтруємо
-        this.Video = this.Video.filter(track => track.mimeType.startsWith('video'));
-        this.tracks = this.tracks.filter(track => track.mimeType.startsWith('audio'));
+        // Log the tracks to verify `id`
+        console.log('Loaded tracks:', this.tracks);
   
-        // Встановлюємо перший трек, якщо є аудіотреки
+        // Set the first track if the list is not empty
         if (this.tracks.length > 0) {
           this.setCurrentTrack(this.tracks[0], false);
         }
@@ -80,6 +86,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
     );
   }
+  
 
   togglePlay(track: Track): void {
     if (!this.audioElement) {
@@ -87,21 +94,19 @@ export class HomeComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const audio = this.audioElement.nativeElement;
-
     // Якщо поточний трек вже відтворюється, просто ставимо його на паузу або відновлюємо відтворення
     if (this.currentTrack && this.currentTrack === track) {
-      if (!audio.paused) {
-        audio.pause();
+      if (!this.audioElement.paused) {
+        this.audioElement.pause();
         this.isPlaying = false;
       } else {
-        audio.play();
+        this.audioElement.play();
         this.isPlaying = true;
       }
     } else {
       // Якщо інший трек, припиняємо відтворення старого і ставимо новий
       if (this.currentTrack) {
-        audio.pause();
+        this.audioElement.pause();
       }
       
       this.setCurrentTrack(track, true);  // Встановлюємо новий трек
@@ -114,13 +119,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const audio = this.audioElement.nativeElement;
-
-    if (audio.paused) {
-      audio.play();
+    if (this.audioElement.paused) {
+      this.audioElement.play();
       this.isPlaying = true;
     } else {
-      audio.pause();
+      this.audioElement.pause();
       this.isPlaying = false;
     }
   }
@@ -155,44 +158,79 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement) {
       const value = inputElement.value;
-      const audio = this.audioElement?.nativeElement;
-      if (audio) {
-        audio.volume = parseFloat(value);
+      if (this.audioElement) {
+        this.audioElement.volume = parseFloat(value);
       }
     }
   }
-  
 
+  // Метод для переходу до певного часу відтворення
+  seekTrack(event: MouseEvent): void {
+    const sliderContainer = event.currentTarget as HTMLElement;
+    const rect = sliderContainer.getBoundingClientRect();
+    const offsetX = event.clientX - rect.left;
+    const percentage = Math.min(1, Math.max(0, offsetX / rect.width)); // Обмеження від 0 до 1
+
+    if (this.audioElement) {
+      this.audioElement.currentTime = percentage * this.durationInSeconds;
+    }
+  }
+  
   private setCurrentTrack(track: Track, autoPlay: boolean = true): void {
     if (!this.audioElement) {
       console.error('Audio element not found!');
       return;
     }
 
-    const audio = this.audioElement.nativeElement;
     this.currentTrack = track;
     const fixedFilePath = track.filePath.replace(/\\/g, '/');
-    audio.src = `http://localhost:5000/${fixedFilePath}`;
-    audio.load();
+    this.audioElement.src = `http://localhost:5000/${fixedFilePath}`;
+    this.audioElement.load();
 
     if (autoPlay) {
-      audio.play();
+      this.audioElement.play();
       this.isPlaying = true;
     } else {
       this.isPlaying = false;
     }
     this.currentTime = '0:00'; // Скидаємо час на початок
-    audio.addEventListener('loadedmetadata', () => {
-      this.duration = this.formatTime(audio.duration);
+    this.audioElement.addEventListener('loadedmetadata', () => {
+      this.duration = this.formatTime(this.audioElement!.duration);
     });
     
     this.currentTrackIndex = this.tracks.indexOf(track);
   }
 
-
+  deleteTrack(track: Track): void {
+    if (!track.id) {
+      console.error('Track ID is undefined'); // This is where the error is logged
+      return;
+    }
+  
+    this.trackService.deleteTrack(track.id).subscribe(
+      () => {
+        // Update the list of tracks
+        this.tracks = this.tracks.filter((t) => t.id !== track.id);
+        // If the current track is deleted, stop playback
+        if (this.currentTrack && this.currentTrack.id === track.id) {
+          if (this.audioElement) {
+            this.audioElement.pause();
+            this.audioElement.src = '';
+          }
+          this.currentTrack = null;
+          this.isPlaying = false;
+        }
+      },
+      (error) => {
+        console.error('Error deleting track:', error);
+      }
+    );
+  }
+  
   // Оновлення часу
   updateTime(audio: HTMLAudioElement): void {
     this.currentTime = this.formatTime(audio.currentTime);
+    this.currentTimeInSeconds = audio.currentTime; // Оновлюємо поточний час в секундах
   }
 
   // Форматування часу у вигляді хвилини:секунди
@@ -201,7 +239,4 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
   }
-
-
-
 }

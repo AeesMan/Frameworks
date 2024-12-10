@@ -48,18 +48,17 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ["audio/mpeg", "audio/wav", "video/mp4"];
+    const allowedTypes = ["audio/mpeg", "audio/wav"];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error("Only audio and video files are allowed!"), false);
+      cb(new Error("Only audio files are allowed!"), false);
     }
   },
 });
 
-
 // Ендпоінт для завантаження треків
-app.post("/upload", upload.single("file"), async (req, res) => {
+app.post("/uploads", upload.single("file"), async (req, res) => {
   try {
     console.log("Request body:", req.body);
     console.log("Uploaded file:", req.file);
@@ -73,8 +72,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
     const track = new Track({
       name,
       author,
-      filePath: req.file.path,
-      mimeType
+      filePath: req.file.path, // Шлях до файлу зберігається в базі даних
     });
 
     await track.save();
@@ -86,10 +84,18 @@ app.post("/upload", upload.single("file"), async (req, res) => {
 });
 
 // Ендпоінт для отримання списку треків
-app.get("/tracks", async (req, res) => {
+app.get("/uploads", async (req, res) => {
   try {
     const tracks = await Track.find();
-    res.status(200).send(tracks);
+    // Transform tracks to include `id` (MongoDB `_id`)
+    const transformedTracks = tracks.map((track) => ({
+      id: track._id, // Ensure `_id` is included
+      name: track.name,
+      author: track.author,
+      filePath: track.filePath,
+      mimeType: track.mimeType, // Add this if needed
+    }));
+    res.status(200).send(transformedTracks);
   } catch (err) {
     console.error("Error fetching tracks:", err);
     res.status(500).send({ error: err.message });
@@ -101,16 +107,46 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
   setHeaders: (res, path) => {
     if (path.endsWith(".mp3")) {
       res.set("Content-Type", "audio/mpeg");
-    } else if (path.endsWith(".mp4")) {
-      res.set("Content-Type", "video/mp4");
     } else if (path.endsWith(".wav")) {
       res.set("Content-Type", "audio/wav");
     }
   }
 }));
 
+// Ендпоінт для видалення трека
+app.delete("/uploads/:id", async (req, res) => {
+  try {
+    const trackId = req.params.id; // Отримуємо ID з параметрів запиту
+    console.log("Deleting track with ID:", trackId); // Логування для перевірки ID
 
+    const track = await Track.findByIdAndDelete(trackId);
+    if (!track) {
+      return res.status(404).send({ message: "Track not found" });
+    }
 
+    // Формуємо шлях до файлу
+    const filePath = path.join(__dirname, track.filePath.replace(/\\/g, '/'));
+    console.log("Attempting to delete file at:", filePath); // Логування шляху до файлу
+
+    // Перевіряємо, чи файл існує
+    if (fs.existsSync(filePath)) {
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Error deleting file:", err);
+        } else {
+          console.log("File deleted successfully:", filePath);
+        }
+      });
+    } else {
+      console.log("File not found for deletion:", filePath);
+    }
+
+    res.status(200).send({ message: "Track deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting track:", err);
+    res.status(500).send({ error: err.message });
+  }
+});
 
 // Сервер
 const PORT = 5000;

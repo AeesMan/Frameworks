@@ -1,16 +1,35 @@
 <h1>Media Player</h1> 
 
+<div class="main-container">
+  <!-- Фотографія або відеоплеєр з лівого боку -->
+  <div class="media-container">
+    <img src="https://shkoly.com.ua/wp-content/uploads/2023/09/reklama.jpeg" alt="Placeholder Image" class="media-image" />
+    <!-- Замініть <img> на <video> для відеоплеєра -->
+    <!-- <video controls class="media-video">
+      <source src="your-video-file.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video> -->
+  </div>
+
 <!-- Контейнер для управління плеєром, фіксований внизу -->
 <div class="controls-container">
-    <!-- Нижня панель -->
-    <div class="track-info">
-      <span class="track-title">{{ currentTrack?.name }}</span>
+  <!-- Слайдер для керування часом відтворення -->
+  <div class="slider-container" (click)="seekTrack($event)">
+    <div class="slider-bar" [style.width.%]="(currentTimeInSeconds / durationInSeconds) * 100"></div>
+    <div class="slider-knob-container">
+      <div class="slider-knob" [style.left.%]="(currentTimeInSeconds / durationInSeconds) * 100"></div>
     </div>
-    <div class="track-time">
-      <span>{{ currentTime }}</span> / <span>{{ duration }}</span>
-    </div>
+  </div>
 
+  <!-- Інформація про трек -->
+  <div class="track-info">
+    <span class="track-title">{{ currentTrack?.name }}</span>
+  </div>
+  <div class="track-time">
+    <span>{{ currentTime }}</span> / <span>{{ duration }}</span>
+  </div>
 
+  <!-- Кнопки керування -->
   <button (click)="playPreviousTrack()">
     <i class="fa fa-backward"></i> <!-- "Попередній трек" -->
   </button>
@@ -28,14 +47,15 @@
         }"></i><!-- "Повтор" -->
   </button>
   
+  <!-- Слайдер для гучності -->
   <input 
-  id="volumeSlider" 
-  type="range" 
-  min="0" 
-  max="1" 
-  step="0.01" 
-  value="0.2" 
-  (input)="setVolume($event)">
+    id="volumeSlider" 
+    type="range" 
+    min="0" 
+    max="1" 
+    step="0.01" 
+    value="0.2" 
+    (input)="setVolume($event)">
 </div>
 
 
@@ -65,49 +85,32 @@
   </button>
 </div>
 
-<!-- Контент -->
-<div class="content">
-  <!-- Основний контент тут -->
-  <p>This is the content of the webpage.</p>
-</div>
 
 <div class="track-list">
   <h2>Треки</h2>
-  <div *ngFor="let track of tracks" class="track-item"
+  <div *ngFor="let track of tracks" 
+       class="track-item"
        [ngClass]="{'active': track === currentTrack}">
+       
     <div class="track-cover-container">
-      <img src="https://shkoly.com.ua/wp-content/uploads/2023/09/reklama.jpeg" class="track-cover" />
+      <img src="https://shkoly.com.ua/wp-content/uploads/2023/09/reklama.jpeg" 
+           class="track-cover" />
       <button class="play-button" (click)="togglePlay(track)">
         <i class="fa fa-play"></i>
       </button>
     </div>
+    
     <div class="track-info">
       <p class="track-title">{{ track.name }}</p>
       <p class="track-artist">{{ track.author }}</p>
     </div>
+    
+    <!-- Додано кнопку видалення -->
+    <button class="delete-button" (click)="deleteTrack(track)">
+      <i class="fa fa-trash"></i>
+    </button>
   </div>
 </div>
-
-
-<div class="video-list">
-  <h2>Відео</h2>
-  <div *ngFor="let vid of Video" class="video-item"
-      [ngClass]="{'active': vid === currentTrack}">
-    <div class="video-cover-container">
-      <img src="https://shkoly.com.ua/wp-content/uploads/2023/09/reklama.jpeg" class="video-cover" />
-      <button class="play-button" (click)="togglePlay(vid)">
-        <i class="fa fa-play"></i>
-      </button>
-    </div>
-    <div class="video-info">
-      <p class="video-title">{{ vid.name }}</p>
-      <p class="video-artist">{{ vid.author }}</p>
-    </div>
-  </div>
-</div>
-
-
-<audio #audioElement controls></audio>
 
   <script>
 
@@ -134,6 +137,7 @@
     const searchPageButton = document.getElementById('searchPage');
     const uploadPageButton = document.getElementById('uploadPage');
     const homePageButton = document.getElementById('homePage');
+    
     // Гучність
     volumeSlider.addEventListener('input', (event) => {
       const volume = event.target.value;
