@@ -3,12 +3,7 @@
 <div class="main-container">
   <!-- Фотографія або відеоплеєр з лівого боку -->
   <div class="media-container">
-    <img src="https://shkoly.com.ua/wp-content/uploads/2023/09/reklama.jpeg" alt="Placeholder Image" class="media-image" />
-    <!-- Замініть <img> на <video> для відеоплеєра -->
-    <!-- <video controls class="media-video">
-      <source src="your-video-file.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video> -->
+    <img src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg" alt="Placeholder Image" class="media-image" />
   </div>
 
 <!-- Контейнер для управління плеєром, фіксований внизу -->
@@ -79,33 +74,30 @@
 
 <!-- Пошук (право верх) -->
 <div class="searchPage">
-  <input type="text" placeholder="Search...">
-  <button class="searchButton">
-    <i class="fa fa-search"></i>
-  </button>
+  <input 
+  type="text" 
+  placeholder="Search by name or author..." 
+  [(ngModel)]="searchQuery" 
+  (input)="filterTracks()" />
 </div>
 
-
+<!-- Список треків -->
 <div class="track-list">
   <h2>Треки</h2>
-  <div *ngFor="let track of tracks" 
+  <div *ngFor="let track of filteredTracks" 
        class="track-item"
        [ngClass]="{'active': track === currentTrack}">
-       
     <div class="track-cover-container">
-      <img src="https://shkoly.com.ua/wp-content/uploads/2023/09/reklama.jpeg" 
+      <img src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg" 
            class="track-cover" />
       <button class="play-button" (click)="togglePlay(track)">
         <i class="fa fa-play"></i>
       </button>
     </div>
-    
     <div class="track-info">
       <p class="track-title">{{ track.name }}</p>
       <p class="track-artist">{{ track.author }}</p>
     </div>
-    
-    <!-- Додано кнопку видалення -->
     <button class="delete-button" (click)="deleteTrack(track)">
       <i class="fa fa-trash"></i>
     </button>
@@ -114,7 +106,6 @@
 
   <script>
 
-    // Отримуємо усі кнопки play для кожного треку
     const playButtons = document.querySelectorAll('.play-button');
     let currentTrack = null;
 

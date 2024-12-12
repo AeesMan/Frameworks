@@ -1,7 +1,5 @@
-import { Component, OnInit, AfterViewInit, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SearchComponent } from '../search/search.component';
-import { MediaFilterComponent } from '../media-filter/media-filter.component';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { TrackService, Track } from '../services/track.service';
@@ -11,11 +9,12 @@ import { TrackService, Track } from '../services/track.service';
   standalone: true,
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  imports: [CommonModule, SearchComponent, MediaFilterComponent, RouterModule, HttpClientModule],
+  imports: [CommonModule, RouterModule, HttpClientModule],
 })
 export class HomeComponent implements OnInit, AfterViewInit {
   isMenuOpen: boolean = false;
   tracks: Track[] = [];
+  filteredTracks: Track[] = []; // Відфільтровані треки
   currentTrack: Track | null = null;
   audioElement?: HTMLAudioElement; // Посилання на аудіоелемент
   currentTrackIndex: number = 0;
@@ -25,6 +24,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   duration: string = '0:00';     // Загальна тривалість треку
   currentTimeInSeconds: number = 0; // Поточний час в секундах
   durationInSeconds: number = 0; // Тривалість треку в секундах
+  searchQuery: string = ''; // Поле для пошуку
 
   constructor(private trackService: TrackService) {}
 
@@ -65,28 +65,42 @@ export class HomeComponent implements OnInit, AfterViewInit {
   loadTracks(): void { 
     this.trackService.getTracks().subscribe(
       (data: any) => {
-        // Map the tracks and ensure `id` is correctly assigned from `_id`
         this.tracks = data.map((track: any) => ({
-          id: track.id, // Assign `id` from `_id`
+          id: track.id,
           name: track.name,
           author: track.author,
           filePath: track.filePath,
         }));
   
-        // Log the tracks to verify `id`
         console.log('Loaded tracks:', this.tracks);
-  
-        // Set the first track if the list is not empty
+
         if (this.tracks.length > 0) {
           this.setCurrentTrack(this.tracks[0], false);
         }
+
+        this.filteredTracks = [...this.tracks];
       },
       (error) => {
         console.error('Error loading tracks:', error);
       }
     );
   }
-  
+
+  // Фільтрація треків за назвою або автором
+  filterTracks(): void {
+    console.log('Filtering tracks with query:', this.searchQuery);
+    if (!this.searchQuery) {
+      // Якщо пошуковий запит порожній, показуємо всі треки
+      this.filteredTracks = [...this.tracks];
+    } else {
+      // Фільтруємо треки за назвою або автором
+      this.filteredTracks = this.tracks.filter(track => 
+        this.cleanText(track.name.toLowerCase()).includes(this.searchQuery.toLowerCase()) ||
+        this.cleanText(track.author.toLowerCase()).includes(this.searchQuery.toLowerCase())
+      );
+    }
+    console.log('Filtered tracks:', this.filteredTracks);
+  }
 
   togglePlay(track: Track): void {
     if (!this.audioElement) {
@@ -203,15 +217,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   deleteTrack(track: Track): void {
     if (!track.id) {
-      console.error('Track ID is undefined'); // This is where the error is logged
+      console.error('Track ID is undefined');
       return;
     }
   
     this.trackService.deleteTrack(track.id).subscribe(
       () => {
-        // Update the list of tracks
         this.tracks = this.tracks.filter((t) => t.id !== track.id);
-        // If the current track is deleted, stop playback
         if (this.currentTrack && this.currentTrack.id === track.id) {
           if (this.audioElement) {
             this.audioElement.pause();
@@ -220,6 +232,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
           this.currentTrack = null;
           this.isPlaying = false;
         }
+
+        this.filterTracks();
       },
       (error) => {
         console.error('Error deleting track:', error);
@@ -238,5 +252,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+  }
+
+  // Очищення тексту від некоректних символів
+  private cleanText(text: string): string {
+    return text.replace(/[^\x00-\x7F]/g, ''); // Видаляємо не-ASCII символи
   }
 }
