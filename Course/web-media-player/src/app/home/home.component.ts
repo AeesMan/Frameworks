@@ -1,8 +1,8 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
-import { TrackService, Track } from '../services/track.service';
+import { MediaService, Track, Video } from '../services/track.service';
 
 @Component({
   selector: 'app-home',
@@ -14,31 +14,34 @@ import { TrackService, Track } from '../services/track.service';
 export class HomeComponent implements OnInit, AfterViewInit {
   isMenuOpen: boolean = false;
   tracks: Track[] = [];
-  filteredTracks: Track[] = []; // Відфільтровані треки
+  videos: Video[] = [];
+  filteredTracks: Track[] = [];
   currentTrack: Track | null = null;
-  audioElement?: HTMLAudioElement; // Посилання на аудіоелемент
-  currentTrackIndex: number = 0;
+  currentVideo: Video | null = null;
+  audioElement?: HTMLAudioElement;
   isPlaying: boolean = false;
   repeatMode: 'none' | 'single' | 'all' = 'none';
-  currentTime: string = '0:00';  // Поточний час
-  duration: string = '0:00';     // Загальна тривалість треку
-  currentTimeInSeconds: number = 0; // Поточний час в секундах
-  durationInSeconds: number = 0; // Тривалість треку в секундах
-  searchQuery: string = ''; // Поле для пошуку
+  currentTime: string = '0:00';
+  duration: string = '0:00';
+  currentTimeInSeconds: number = 0;
+  durationInSeconds: number = 0;
+  showTracks: boolean = true;
 
-  constructor(private trackService: TrackService) {}
+  @ViewChild('videoPlayer', { static: false }) videoPlayer!: ElementRef<HTMLVideoElement>;
+
+  constructor(private trackService: MediaService) {}
 
   ngOnInit(): void {
     this.loadTracks();
+    this.loadVideos();
   }
 
   ngAfterViewInit(): void {
-    // Створюємо аудіоелемент програмно
     this.audioElement = new Audio();
-    this.audioElement.style.display = 'none'; // Приховуємо аудіоелемент
-    document.body.appendChild(this.audioElement); // Додаємо аудіоелемент до DOM
+    this.audioElement.style.display = 'none';
+    document.body.appendChild(this.audioElement);
 
-    // Додаємо обробники подій
+    // Відстежуємо кінець відтворення аудіо
     this.audioElement.addEventListener('ended', () => {
       if (this.repeatMode === 'single') {
         this.audioElement!.currentTime = 0;
@@ -48,13 +51,36 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
     });
 
+    // Відстежуємо зміну часу в аудіо
     this.audioElement.ontimeupdate = () => {
       this.updateTime(this.audioElement!);
     };
 
+    // Відстежуємо завантаження метаданих аудіо
     this.audioElement.onloadedmetadata = () => {
       this.durationInSeconds = this.audioElement!.duration;
       this.duration = this.formatTime(this.audioElement!.duration);
+    };
+
+    // Відстежуємо кінець відтворення відео
+    this.videoPlayer.nativeElement.addEventListener('ended', () => {
+      if (this.repeatMode === 'single') {
+        this.videoPlayer.nativeElement.currentTime = 0;
+        this.videoPlayer.nativeElement.play();
+      } else {
+        this.playNextVideo();
+      }
+    });
+
+    // Відстежуємо зміну часу у відео
+    this.videoPlayer.nativeElement.ontimeupdate = () => {
+      this.updateTime(this.videoPlayer.nativeElement);
+    };
+
+    // Відстежуємо завантаження метаданих відео
+    this.videoPlayer.nativeElement.onloadedmetadata = () => {
+      this.durationInSeconds = this.videoPlayer.nativeElement.duration;
+      this.duration = this.formatTime(this.videoPlayer.nativeElement.duration);
     };
   }
 
@@ -62,7 +88,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.isMenuOpen = !this.isMenuOpen;
   }
 
-  loadTracks(): void { 
+  loadTracks(): void {
     this.trackService.getTracks().subscribe(
       (data: any) => {
         this.tracks = data.map((track: any) => ({
@@ -71,7 +97,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
           author: track.author,
           filePath: track.filePath,
         }));
-  
+
         console.log('Loaded tracks:', this.tracks);
 
         if (this.tracks.length > 0) {
@@ -86,76 +112,109 @@ export class HomeComponent implements OnInit, AfterViewInit {
     );
   }
 
-  // Фільтрація треків за назвою або автором
-  filterTracks(): void {
-    console.log('Filtering tracks with query:', this.searchQuery);
-    if (!this.searchQuery) {
-      // Якщо пошуковий запит порожній, показуємо всі треки
-      this.filteredTracks = [...this.tracks];
-    } else {
-      // Фільтруємо треки за назвою або автором
-      this.filteredTracks = this.tracks.filter(track => 
-        this.cleanText(track.name.toLowerCase()).includes(this.searchQuery.toLowerCase()) ||
-        this.cleanText(track.author.toLowerCase()).includes(this.searchQuery.toLowerCase())
-      );
-    }
-    console.log('Filtered tracks:', this.filteredTracks);
+  loadVideos(): void {
+    this.trackService.getVideos().subscribe(
+      (data: any) => {
+        this.videos = data.map((video: any) => ({
+          id: video.id,
+          name: video.name,
+          author: video.author,
+          filePath: video.filePath,
+        }));
+
+        console.log('Loaded videos:', this.videos);
+
+        if (this.videos.length > 0) {
+          this.setCurrentVideo(this.videos[0], false);
+        }
+      },
+      (error) => {
+        console.error('Error loading videos:', error);
+      }
+    );
   }
 
-  togglePlay(track: Track): void {
-    if (!this.audioElement) {
-      console.error('Audio element not found!');
-      return;
-    }
-
-    // Якщо поточний трек вже відтворюється, просто ставимо його на паузу або відновлюємо відтворення
-    if (this.currentTrack && this.currentTrack === track) {
-      if (!this.audioElement.paused) {
-        this.audioElement.pause();
-        this.isPlaying = false;
-      } else {
-        this.audioElement.play();
-        this.isPlaying = true;
+  togglePlay(media: Track | Video): void {
+    if (media.hasOwnProperty('filePath')) {
+      if ('filePath' in media) {
+        if (this.currentTrack && this.currentTrack === media) {
+          this.togglePlayPause();
+        } else {
+          this.setCurrentTrack(media as Track, true);
+        }
+      } else if ('filePath' in media) {
+        if (this.currentVideo && this.currentVideo === media) {
+          this.togglePlayPauseVideo();
+        } else {
+          this.setCurrentVideo(media as Video, true);
+        }
       }
-    } else {
-      // Якщо інший трек, припиняємо відтворення старого і ставимо новий
-      if (this.currentTrack) {
-        this.audioElement.pause();
-      }
-      
-      this.setCurrentTrack(track, true);  // Встановлюємо новий трек
     }
   }
 
   togglePlayPause(): void {
-    if (!this.audioElement) {
-      console.error('Audio element not found!');
-      return;
+    if (this.audioElement) {
+      if (this.audioElement.paused) {
+        this.audioElement.play();
+        this.isPlaying = true;
+        // Пауза для відео, якщо відтворюється аудіо
+        if (this.videoPlayer) {
+          this.videoPlayer.nativeElement.pause();
+        }
+      } else {
+        this.audioElement.pause();
+        this.isPlaying = false;
+      }
     }
-
-    if (this.audioElement.paused) {
-      this.audioElement.play();
-      this.isPlaying = true;
-    } else {
-      this.audioElement.pause();
-      this.isPlaying = false;
+  }
+  
+  togglePlayPauseVideo(): void {
+    if (this.videoPlayer) {
+      const videoElement = this.videoPlayer.nativeElement;
+      if (videoElement.paused) {
+        videoElement.play(); // Відтворення відео
+        this.isPlaying = true;
+        // Пауза для аудіо, якщо відтворюється відео
+        if (this.audioElement) {
+          this.audioElement.pause();
+        }
+      } else {
+        videoElement.pause(); // Пауза відео
+        this.isPlaying = false;
+      }
     }
   }
 
   playNextTrack(): void {
-    if (!this.currentTrack || this.tracks.length === 0) return;
-
-    const currentIndex = this.tracks.findIndex((track) => track === this.currentTrack);
-    const nextIndex = (currentIndex + 1) % this.tracks.length;
-    this.setCurrentTrack(this.tracks[nextIndex]);
+    if (this.currentTrack && this.tracks.length > 0) {
+      const currentIndex = this.tracks.findIndex((track) => track === this.currentTrack);
+      const nextIndex = (currentIndex + 1) % this.tracks.length;
+      this.setCurrentTrack(this.tracks[nextIndex]);
+    } else if (this.currentVideo && this.videos.length > 0) {
+      const currentIndex = this.videos.findIndex((video) => video === this.currentVideo);
+      const nextIndex = (currentIndex + 1) % this.videos.length;
+      this.setCurrentVideo(this.videos[nextIndex]);
+    }
   }
 
   playPreviousTrack(): void {
-    if (!this.currentTrack || this.tracks.length === 0) return;
+    if (this.currentTrack && this.tracks.length > 0) {
+      const currentIndex = this.tracks.findIndex((track) => track === this.currentTrack);
+      const prevIndex = (currentIndex - 1 + this.tracks.length) % this.tracks.length;
+      this.setCurrentTrack(this.tracks[prevIndex]);
+    } else if (this.currentVideo && this.videos.length > 0) {
+      const currentIndex = this.videos.findIndex((video) => video === this.currentVideo);
+      const prevIndex = (currentIndex - 1 + this.videos.length) % this.videos.length;
+      this.setCurrentVideo(this.videos[prevIndex]);
+    }
+  }
 
-    const currentIndex = this.tracks.findIndex((track) => track === this.currentTrack);
-    const prevIndex = (currentIndex - 1 + this.tracks.length) % this.tracks.length;
-    this.setCurrentTrack(this.tracks[prevIndex]);
+  playNextVideo(): void {
+    if (this.currentVideo && this.videos.length > 0) {
+      const currentIndex = this.videos.findIndex((video) => video === this.currentVideo);
+      const nextIndex = (currentIndex + 1) % this.videos.length;
+      this.setCurrentVideo(this.videos[nextIndex]);
+    }
   }
 
   toggleRepeatMode() {
@@ -171,25 +230,30 @@ export class HomeComponent implements OnInit, AfterViewInit {
   setVolume(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     if (inputElement) {
-      const value = inputElement.value;
+      const value = parseFloat(inputElement.value);
       if (this.audioElement) {
-        this.audioElement.volume = parseFloat(value);
+        this.audioElement.volume = value;
+      }
+      if (this.videoPlayer) {
+        this.videoPlayer.nativeElement.volume = value;
       }
     }
   }
 
-  // Метод для переходу до певного часу відтворення
   seekTrack(event: MouseEvent): void {
     const sliderContainer = event.currentTarget as HTMLElement;
     const rect = sliderContainer.getBoundingClientRect();
     const offsetX = event.clientX - rect.left;
-    const percentage = Math.min(1, Math.max(0, offsetX / rect.width)); // Обмеження від 0 до 1
+    const percentage = Math.min(1, Math.max(0, offsetX / rect.width));
 
     if (this.audioElement) {
       this.audioElement.currentTime = percentage * this.durationInSeconds;
     }
+    if (this.videoPlayer) {
+      this.videoPlayer.nativeElement.currentTime = percentage * this.durationInSeconds;
+    }
   }
-  
+
   private setCurrentTrack(track: Track, autoPlay: boolean = true): void {
     if (!this.audioElement) {
       console.error('Audio element not found!');
@@ -204,15 +268,44 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (autoPlay) {
       this.audioElement.play();
       this.isPlaying = true;
+      // Пауза для відео, якщо відтворюється аудіо
+      if (this.videoPlayer) {
+        this.videoPlayer.nativeElement.pause();
+      }
     } else {
       this.isPlaying = false;
     }
-    this.currentTime = '0:00'; // Скидаємо час на початок
+    this.currentTime = '0:00';
     this.audioElement.addEventListener('loadedmetadata', () => {
       this.duration = this.formatTime(this.audioElement!.duration);
     });
-    
-    this.currentTrackIndex = this.tracks.indexOf(track);
+  }
+
+  private setCurrentVideo(video: Video, autoPlay: boolean = true): void {
+    if (!this.videoPlayer) {
+      console.error('Video player not found!');
+      return;
+    }
+  
+    this.currentVideo = video;
+    const fixedFilePath = video.filePath.replace(/\\/g, '/');
+    this.videoPlayer.nativeElement.src = `http://localhost:5000/${fixedFilePath}`;
+    this.videoPlayer.nativeElement.load(); // Завантаження відео
+  
+    if (autoPlay) {
+      this.videoPlayer.nativeElement.play(); // Автовідтворення
+      this.isPlaying = true;
+      // Пауза для аудіо, якщо відтворюється відео
+      if (this.audioElement) {
+        this.audioElement.pause();
+      }
+    } else {
+      this.isPlaying = false;
+    }
+  
+    this.videoPlayer.nativeElement.addEventListener('loadedmetadata', () => {
+      this.duration = this.formatTime(this.videoPlayer.nativeElement.duration);
+    });
   }
 
   deleteTrack(track: Track): void {
@@ -220,7 +313,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       console.error('Track ID is undefined');
       return;
     }
-  
+
     this.trackService.deleteTrack(track.id).subscribe(
       () => {
         this.tracks = this.tracks.filter((t) => t.id !== track.id);
@@ -233,29 +326,64 @@ export class HomeComponent implements OnInit, AfterViewInit {
           this.isPlaying = false;
         }
 
-        this.filterTracks();
+        this.loadTracks();
       },
       (error) => {
         console.error('Error deleting track:', error);
       }
     );
   }
-  
-  // Оновлення часу
-  updateTime(audio: HTMLAudioElement): void {
-    this.currentTime = this.formatTime(audio.currentTime);
-    this.currentTimeInSeconds = audio.currentTime; // Оновлюємо поточний час в секундах
+
+  deleteVideo(video: Video): void {
+    if (!video.id) {
+      console.error('Video ID is undefined');
+      return;
+    }
+
+    this.trackService.deleteVideo(video.id).subscribe(
+      () => {
+        this.videos = this.videos.filter((v) => v.id !== video.id);
+        if (this.currentVideo && this.currentVideo.id === video.id) {
+          if (this.videoPlayer) {
+            this.videoPlayer.nativeElement.pause();
+            this.videoPlayer.nativeElement.src = '';
+          }
+          this.currentVideo = null;
+          this.isPlaying = false;
+        }
+
+        this.loadVideos();
+      },
+      (error) => {
+        console.error('Error deleting video:', error);
+      }
+    );
   }
 
-  // Форматування часу у вигляді хвилини:секунди
+  updateTime(media: HTMLAudioElement | HTMLVideoElement): void {
+    this.currentTime = this.formatTime(media.currentTime);
+    this.currentTimeInSeconds = media.currentTime;
+  }
+
   formatTime(time: number): string {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
   }
 
-  // Очищення тексту від некоректних символів
-  private cleanText(text: string): string {
-    return text.replace(/[^\x00-\x7F]/g, ''); // Видаляємо не-ASCII символи
+  toggleMediaList(): void {
+    this.showTracks = !this.showTracks;
+
+    // Показуємо або приховуємо відеоплеєр
+    if (!this.showTracks) {
+      this.videoPlayer.nativeElement.classList.remove('hidden');
+    } else {
+      this.videoPlayer.nativeElement.classList.add('hidden');
+    }
+  }
+
+  // Метод для відображення відеоплеєра замість картинки
+  showVideoPlayer(): boolean {
+    return !!this.currentVideo && this.isPlaying;
   }
 }

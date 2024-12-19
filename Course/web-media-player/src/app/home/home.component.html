@@ -1,158 +1,127 @@
-<h1>Media Player</h1> 
+<h1>Media Player</h1>
 
 <div class="main-container">
   <!-- Фотографія або відеоплеєр з лівого боку -->
   <div class="media-container">
-    <img src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg" alt="Placeholder Image" class="media-image" />
-  </div>
+    <!-- Відеоплеєр завжди на сторінці, але прихований -->
+    <video #videoPlayer class="media-video" [class.hidden]="!showVideoPlayer()" controls></video>
+    <!-- Відображаємо картинку, якщо відтворюється аудіо -->
+    <img *ngIf="!showVideoPlayer()" src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg" alt="Placeholder Image" class="media-image" />
+  </div>>
 
-<!-- Контейнер для управління плеєром, фіксований внизу -->
-<div class="controls-container">
-  <!-- Слайдер для керування часом відтворення -->
-  <div class="slider-container" (click)="seekTrack($event)">
-    <div class="slider-bar" [style.width.%]="(currentTimeInSeconds / durationInSeconds) * 100"></div>
-    <div class="slider-knob-container">
-      <div class="slider-knob" [style.left.%]="(currentTimeInSeconds / durationInSeconds) * 100"></div>
+  <!-- Контейнер для управління плеєром, фіксований внизу -->
+  <div class="controls-container">
+    <!-- Слайдер для керування часом відтворення -->
+    <div class="slider-container" (click)="seekTrack($event)">
+      <div class="slider-bar" [style.width.%]="(currentTimeInSeconds / durationInSeconds) * 100"></div>
+      <div class="slider-knob-container">
+        <div class="slider-knob" [style.left.%]="(currentTimeInSeconds / durationInSeconds) * 100"></div>
+      </div>
     </div>
-  </div>
 
-  <!-- Інформація про трек -->
-  <div class="track-info">
-    <span class="track-title">{{ currentTrack?.name }}</span>
-  </div>
-  <div class="track-time">
-    <span>{{ currentTime }}</span> / <span>{{ duration }}</span>
-  </div>
-
-  <!-- Кнопки керування -->
-  <button (click)="playPreviousTrack()">
-    <i class="fa fa-backward"></i> <!-- "Попередній трек" -->
-  </button>
-  <button (click)="togglePlayPause()">
-    <i [class]="isPlaying ? 'fa fa-pause' : 'fa fa-play'"></i> <!-- Зміна іконки -->
-  </button>  
-  <button (click)="playNextTrack()">
-    <i class="fa fa-forward"></i> <!-- "Наступний трек" -->
-  </button>
-  <button (click)="toggleRepeatMode()"> 
-    <i [ngClass]="{
-          'fa fa-times': repeatMode === 'none', 
-          'fa-solid fa-1': repeatMode === 'single',
-          'fa-solid fa-repeat': repeatMode === 'all'
-        }"></i><!-- "Повтор" -->
-  </button>
-  
-  <!-- Слайдер для гучності -->
-  <input 
-    id="volumeSlider" 
-    type="range" 
-    min="0" 
-    max="1" 
-    step="0.01" 
-    value="0.2" 
-    (input)="setVolume($event)">
-</div>
-
-
-<div class="main-container" [class.menu-open]="isMenuOpen">
-  <!-- Панель меню (ліва) -->
-  <div id="menuPanel" class="menu-panel" [class.open]="isMenuOpen">
-    <div class="menu-buttons">
-      <button class="menu-item" routerLink="/">Home</button>
-      <button class="menu-item" routerLink="/upload">Upload</button>
-    </div>
-  </div>
-
-  <!-- Кнопка для відкриття меню -->
-  <button id="menuButton" class="menu-button" (click)="toggleMenu()">
-    <i class="fa fa-bars"></i>
-  </button>
-</div>
-
-<!-- Контейнер для відображення вмісту -->
-<router-outlet></router-outlet>
-
-<!-- Пошук (право верх) -->
-<div class="searchPage">
-  <input 
-  type="text" 
-  placeholder="Search by name or author..." 
-  [(ngModel)]="searchQuery" 
-  (input)="filterTracks()" />
-</div>
-
-<!-- Список треків -->
-<div class="track-list">
-  <h2>Треки</h2>
-  <div *ngFor="let track of filteredTracks" 
-       class="track-item"
-       [ngClass]="{'active': track === currentTrack}">
-    <div class="track-cover-container">
-      <img src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg" 
-           class="track-cover" />
-      <button class="play-button" (click)="togglePlay(track)">
-        <i class="fa fa-play"></i>
-      </button>
-    </div>
+    <!-- Інформація про трек -->
     <div class="track-info">
-      <p class="track-title">{{ track.name }}</p>
-      <p class="track-artist">{{ track.author }}</p>
+      <span class="track-title">{{ currentTrack?.name || currentVideo?.name }}</span>
     </div>
-    <button class="delete-button" (click)="deleteTrack(track)">
-      <i class="fa fa-trash"></i>
+    <div class="track-time">
+      <span>{{ currentTime }}</span> / <span>{{ duration }}</span>
+    </div>
+
+    <!-- Кнопки керування -->
+    <button (click)="playPreviousTrack()">
+      <i class="fa fa-backward"></i> <!-- "Попередній трек" -->
+    </button>
+    <button (click)="togglePlayPause()">
+      <i [class]="isPlaying ? 'fa fa-pause' : 'fa fa-play'"></i> <!-- Зміна іконки -->
+    </button>
+    <button (click)="playNextTrack()">
+      <i class="fa fa-forward"></i> <!-- "Наступний трек" -->
+    </button>
+    <button (click)="toggleRepeatMode()">
+      <i [ngClass]="{
+            'fa fa-times': repeatMode === 'none',
+            'fa-solid fa-1': repeatMode === 'single',
+            'fa-solid fa-repeat': repeatMode === 'all'
+          }"></i><!-- "Повтор" -->
+    </button>
+
+    <!-- Слайдер для гучності -->
+    <input
+      id="volumeSlider"
+      type="range"
+      min="0"
+      max="1"
+      step="0.01"
+      value="0.2"
+      (input)="setVolume($event)">
+  </div>
+
+  <div class="main-container" [class.menu-open]="isMenuOpen">
+    <!-- Панель меню (ліва) -->
+    <div id="menuPanel" class="menu-panel" [class.open]="isMenuOpen">
+      <div class="menu-buttons">
+        <button class="menu-item" routerLink="/">Home</button>
+        <button class="menu-item" routerLink="/upload">Upload</button>
+      </div>
+    </div>
+
+    <!-- Кнопка для відкриття меню -->
+    <button id="menuButton" class="menu-button" (click)="toggleMenu()">
+      <i class="fa fa-bars"></i>
     </button>
   </div>
+
+  <!-- Контейнер для відображення вмісту -->
+  <router-outlet></router-outlet>
+
+  <!-- Кнопка для перемикання між списками -->
+  <button class="toggle-media-list" (click)="toggleMediaList()">
+    {{ showTracks ? 'Show Videos' : 'Show Tracks' }}
+  </button>
+
+  <!-- Список треків -->
+  <div class="track-list" *ngIf="showTracks">
+    <h2>Треки</h2>
+    <div *ngFor="let track of tracks"
+         class="track-item"
+         [ngClass]="{'active': track === currentTrack}">
+      <div class="track-cover-container">
+        <img src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg"
+             class="track-cover" />
+        <button class="play-button" (click)="togglePlay(track)">
+          <i class="fa fa-play"></i>
+        </button>
+      </div>
+      <div class="track-info">
+        <p class="track-title">{{ track.name }}</p>
+        <p class="track-artist">{{ track.author }}</p>
+      </div>
+      <button class="delete-button" (click)="deleteTrack(track)">
+        <i class="fa fa-trash"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Список відео -->
+  <div class="video-list" *ngIf="!showTracks">
+    <h2>Відео</h2>
+    <div *ngFor="let video of videos"
+         class="video-item"
+         [ngClass]="{'active': video === currentVideo}">
+      <div class="video-cover-container">
+        <img src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg"
+             class="track-cover" />
+        <button class="play-button" (click)="togglePlay(video)">
+          <i class="fa fa-play"></i>
+        </button>
+      </div>
+      <div class="video-info">
+        <p class="video-title">{{ video.name }}</p>
+        <p class="video-artist">{{ video.author }}</p>
+      </div>
+      <button class="delete-button" (click)="deleteVideo(video)">
+        <i class="fa fa-trash"></i>
+      </button>
+    </div>
+  </div>
 </div>
-
-  <script>
-
-    const playButtons = document.querySelectorAll('.play-button');
-    let currentTrack = null;
-
-    document.getElementById('menuButton').addEventListener('click', function() {
-    document.getElementById('menuPanel').classList.toggle('open');
-    });
-  
-
-    let currentTrackIndex = 0;
-    let isPlaying = false;
-
-    // Елементи
-    const playPauseButton = document.getElementById('playPause');
-    const prevTrackButton = document.getElementById('prevTrack');
-    const nextTrackButton = document.getElementById('nextTrack');
-    const repeatModeButton = document.getElementById('repeatMode');
-    const volumeSlider = document.getElementById('volumeSlider');
-    const menuButton = document.getElementById('menuButton');
-    const menuButtons = document.getElementById('menuButtons');
-    const searchPageButton = document.getElementById('searchPage');
-    const uploadPageButton = document.getElementById('uploadPage');
-    const homePageButton = document.getElementById('homePage');
-    
-    // Гучність
-    volumeSlider.addEventListener('input', (event) => {
-      const volume = event.target.value;
-      console.log(`Гучність: ${volume}`);
-    });
-
-    // Меню
-    menuButton.addEventListener('click', () => {
-      const isMenuVisible = menuButtons.style.display === 'flex';
-      menuButtons.style.display = isMenuVisible ? 'none' : 'flex';
-    });
-
-    // Навігація між сторінками
-    searchPageButton.addEventListener('click', () => {
-      console.log('Перехід на сторінку Пошуку');
-    });
-
-    uploadPageButton.addEventListener('click', () => {
-      console.log('Перехід на сторінку Завантаження');
-    });
-
-    homePageButton.addEventListener('click', () => {
-      console.log('Перехід на Головну сторінку');
-    });
-  </script>
-
-

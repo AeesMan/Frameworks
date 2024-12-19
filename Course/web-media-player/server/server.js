@@ -35,6 +35,16 @@ const trackSchema = new mongoose.Schema({
 
 const Track = mongoose.model("Track", trackSchema);
 
+
+// Схема та модель для зберігання відео
+const videoSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  author: { type: String, required: true },
+  filePath: { type: String, required: true },
+});
+
+const Video = mongoose.model("Video", videoSchema);
+
 // Налаштування зберігання файлів (multer)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -53,6 +63,18 @@ const upload = multer({
       cb(null, true);
     } else {
       cb(new Error("Only audio files are allowed!"), false);
+    }
+  },
+});
+
+const videoUpload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ["video/mp4", "video/webm"];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only video files are allowed!"), false);
     }
   },
 });
@@ -83,6 +105,31 @@ app.post("/uploads", upload.single("file"), async (req, res) => {
   }
 });
 
+
+app.post("/uploads/video", videoUpload.single("file"), async (req, res) => {
+  try {
+    console.log("Request body:", req.body);
+    console.log("Uploaded file:", req.file);
+
+    if (!req.file) {
+      throw new Error("File not uploaded");
+    }
+
+    const { name, author } = req.body;
+    const video = new Video({
+      name,
+      author,
+      filePath: req.file.path,
+    });
+
+    await video.save();
+    res.status(200).send({ message: "Video uploaded successfully", video });
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).send({ error: err.message });
+  }
+});
+
 // Ендпоінт для отримання списку треків
 app.get("/uploads", async (req, res) => {
   try {
@@ -102,6 +149,22 @@ app.get("/uploads", async (req, res) => {
   }
 });
 
+app.get("/uploads/video", async (req, res) => {
+  try {
+    const videos = await Video.find();
+    const transformedVideos = videos.map((video) => ({
+      id: video._id,
+      name: video.name,
+      author: video.author,
+      filePath: video.filePath,
+    }));
+    res.status(200).send(transformedVideos);
+  } catch (err) {
+    console.error("Error fetching videos:", err);
+    res.status(500).send({ error: err.message });
+  }
+});
+
 // Сервіс для статичних файлів
 app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
   setHeaders: (res, path) => {
@@ -109,6 +172,10 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
       res.set("Content-Type", "audio/mpeg");
     } else if (path.endsWith(".wav")) {
       res.set("Content-Type", "audio/wav");
+    } else if (path.endsWith(".mp4")) {
+      res.set("Content-Type", "video/mp4");
+    } else if (path.endsWith(".webm")) {
+      res.set("Content-Type", "video/webm");
     }
   }
 }));
@@ -147,6 +214,36 @@ app.delete("/uploads/:id", async (req, res) => {
     res.status(500).send({ error: err.message });
   }
 });
+
+
+app.delete("/uploads/video/:id", async (req, res) => {
+  try {
+    const videoId = req.params.id;
+    const video = await Video.findByIdAndDelete(videoId);
+    if (!video) {
+      return res.status(404).send({ message: "Video not found" });
+    }
+
+    const filePath = path.join(__dirname, video.filePath.replace(/\\/g, '/'));
+    if (fs.existsSync(filePath)) {
+      fs.unlink(filePath, (err) => {
+        if (err) {
+          console.error("Error deleting file:", err);
+        } else {
+          console.log("File deleted successfully:", filePath);
+        }
+      });
+    } else {
+      console.log("File not found for deletion:", filePath);
+    }
+
+    res.status(200).send({ message: "Video deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting video:", err);
+    res.status(500).send({ error: err.message });
+  }
+});
+
 
 // Сервер
 const PORT = 5000;

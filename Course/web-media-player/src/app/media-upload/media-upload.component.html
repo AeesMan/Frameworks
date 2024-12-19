@@ -1,12 +1,17 @@
 <div>
-  <h1>Upload Media</h1>
+  <!-- Кнопка для перемикання між музикою та відео -->
+  <button class="toggle-button" (click)="toggleUploadType()">
+    {{ uploadType === 'audio' ? 'Switch to Video' : 'Switch to Audio' }}
+  </button>
+
+  <h1>Upload {{ uploadType === 'audio' ? 'Audio' : 'Video' }}</h1>
   <form (submit)="uploadFile()">
     <div>
       <label>Name:</label>
       <input type="text" [(ngModel)]="name" name="name" required />
     </div>
     <div>
-      <label>Description:</label>
+      <label>Author:</label>
       <textarea [(ngModel)]="author" name="author"></textarea>
     </div>
     <div>
@@ -16,7 +21,6 @@
     <button type="submit">Upload</button>
   </form>
 </div>
-
 
 <div class="main-container" [class.menu-open]="isMenuOpen">
   <!-- Панель меню (ліва) -->
@@ -35,39 +39,3 @@
 
 <!-- Контейнер для відображення вмісту -->
 <router-outlet></router-outlet>
-
-
-
-
-    <script>
-
-
-      document.getElementById('menuButton').addEventListener('click', function() {
-      document.getElementById('menuPanel').classList.toggle('open');
-      });
-
-      const menuButton = document.getElementById('menuButton');
-      const menuButtons = document.getElementById('menuButtons');
-      const uploadPageButton = document.getElementById('uploadPage');
-      const homePageButton = document.getElementById('homePage');
-
-
-      // Меню
-    menuButton.addEventListener('click', () => {
-      const isMenuVisible = menuButtons.style.display === 'flex';
-      menuButtons.style.display = isMenuVisible ? 'none' : 'flex';
-    });
-
-    // Навігація між сторінками
-    searchPageButton.addEventListener('click', () => {
-      console.log('Перехід на сторінку Пошуку');
-    });
-
-    uploadPageButton.addEventListener('click', () => {
-      console.log('Перехід на сторінку Завантаження');
-    });
-
-    homePageButton.addEventListener('click', () => {
-      console.log('Перехід на Головну сторінку');
-    });
-  </script>
