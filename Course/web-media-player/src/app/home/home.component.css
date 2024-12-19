@@ -64,6 +64,11 @@ h1 {
   gap: 10px;
 }
 
+/* Приховуємо панель керування, якщо відтворюється відео */
+.controls-container.hidden {
+  display: none;
+}
+
 /* Слайдер для керування часом відтворення */
 .slider-container {
   position: relative;
@@ -534,8 +539,9 @@ input[type="range"] {
   font-size: 1.2rem;
   cursor: pointer;
   padding: 5px;
-  transition: color 0
+  transition: color 0;
 }
+
 /* Кнопка перемикання між списками */
 button.toggle-media-list {
   background-color: #007bff;

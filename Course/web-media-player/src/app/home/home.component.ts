@@ -26,6 +26,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   currentTimeInSeconds: number = 0;
   durationInSeconds: number = 0;
   showTracks: boolean = true;
+  showControls: boolean = true; // Стан для панелі керування
+  showVideoPlayer: boolean = false; // Стан для відображення відеоплеєра
 
   @ViewChild('videoPlayer', { static: false }) videoPlayer!: ElementRef<HTMLVideoElement>;
 
@@ -136,13 +138,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   togglePlay(media: Track | Video): void {
     if (media.hasOwnProperty('filePath')) {
-      if ('filePath' in media) {
+      if (this.isTrack(media)) {
         if (this.currentTrack && this.currentTrack === media) {
           this.togglePlayPause();
         } else {
           this.setCurrentTrack(media as Track, true);
         }
-      } else if ('filePath' in media) {
+      } else if (this.isVideo(media)) {
         if (this.currentVideo && this.currentVideo === media) {
           this.togglePlayPauseVideo();
         } else {
@@ -151,13 +153,23 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
     }
   }
+  
+  // Допоміжні функції для перевірки типу
+  private isTrack(media: Track | Video): media is Track {
+    return (media as Track).filePath !== undefined;
+  }
+  
+  private isVideo(media: Track | Video): media is Video {
+    return (media as Video).filePath !== undefined;
+  }
 
   togglePlayPause(): void {
     if (this.audioElement) {
       if (this.audioElement.paused) {
         this.audioElement.play();
         this.isPlaying = true;
-        // Пауза для відео, якщо відтворюється аудіо
+        this.showControls = true; // Показуємо панель керування для аудіо
+        this.showVideoPlayer = false; // Приховуємо відеоплеєр
         if (this.videoPlayer) {
           this.videoPlayer.nativeElement.pause();
         }
@@ -167,19 +179,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
     }
   }
-  
+
   togglePlayPauseVideo(): void {
     if (this.videoPlayer) {
-      const videoElement = this.videoPlayer.nativeElement;
-      if (videoElement.paused) {
-        videoElement.play(); // Відтворення відео
+      if (this.videoPlayer.nativeElement.paused) {
+        this.videoPlayer.nativeElement.play();
         this.isPlaying = true;
-        // Пауза для аудіо, якщо відтворюється відео
-        if (this.audioElement) {
-          this.audioElement.pause();
-        }
+        this.showControls = false; // Приховуємо панель керування для відео
+        this.showVideoPlayer = true; // Показуємо відеоплеєр
       } else {
-        videoElement.pause(); // Пауза відео
+        this.videoPlayer.nativeElement.pause();
         this.isPlaying = false;
       }
     }
@@ -268,7 +277,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (autoPlay) {
       this.audioElement.play();
       this.isPlaying = true;
-      // Пауза для відео, якщо відтворюється аудіо
+      this.showControls = true; // Показуємо панель керування для аудіо
+      this.showVideoPlayer = false; // Приховуємо відеоплеєр
       if (this.videoPlayer) {
         this.videoPlayer.nativeElement.pause();
       }
@@ -286,23 +296,21 @@ export class HomeComponent implements OnInit, AfterViewInit {
       console.error('Video player not found!');
       return;
     }
-  
+
     this.currentVideo = video;
     const fixedFilePath = video.filePath.replace(/\\/g, '/');
     this.videoPlayer.nativeElement.src = `http://localhost:5000/${fixedFilePath}`;
-    this.videoPlayer.nativeElement.load(); // Завантаження відео
-  
+    this.videoPlayer.nativeElement.load();
+
     if (autoPlay) {
-      this.videoPlayer.nativeElement.play(); // Автовідтворення
+      this.videoPlayer.nativeElement.play();
       this.isPlaying = true;
-      // Пауза для аудіо, якщо відтворюється відео
-      if (this.audioElement) {
-        this.audioElement.pause();
-      }
+      this.showControls = false; // Приховуємо панель керування для відео
+      this.showVideoPlayer = true; // Показуємо відеоплеєр
     } else {
       this.isPlaying = false;
     }
-  
+    this.currentTime = '0:00';
     this.videoPlayer.nativeElement.addEventListener('loadedmetadata', () => {
       this.duration = this.formatTime(this.videoPlayer.nativeElement.duration);
     });
@@ -374,16 +382,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
   toggleMediaList(): void {
     this.showTracks = !this.showTracks;
 
-    // Показуємо або приховуємо відеоплеєр
+    // Якщо відображаються відео, приховуємо панель керування
     if (!this.showTracks) {
-      this.videoPlayer.nativeElement.classList.remove('hidden');
+      this.showControls = false;
     } else {
-      this.videoPlayer.nativeElement.classList.add('hidden');
+      this.showControls = true;
     }
   }
 
-  // Метод для відображення відеоплеєра замість картинки
-  showVideoPlayer(): boolean {
-    return !!this.currentVideo && this.isPlaying;
+  openVideoInNewTab(video: Video): void {
+    const videoUrl = `http://localhost:5000/${video.filePath.replace(/\\/g, '/')}`;
+    window.open(videoUrl, '_blank'); // Відкриває нову вкладку
   }
 }

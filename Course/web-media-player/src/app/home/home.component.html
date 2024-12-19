@@ -4,13 +4,13 @@
   <!-- Фотографія або відеоплеєр з лівого боку -->
   <div class="media-container">
     <!-- Відеоплеєр завжди на сторінці, але прихований -->
-    <video #videoPlayer class="media-video" [class.hidden]="!showVideoPlayer()" controls></video>
+    <video #videoPlayer class="media-video" [class.hidden]="!showVideoPlayer" controls></video>
     <!-- Відображаємо картинку, якщо відтворюється аудіо -->
-    <img *ngIf="!showVideoPlayer()" src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg" alt="Placeholder Image" class="media-image" />
-  </div>>
+    <img *ngIf="!showVideoPlayer" src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg" alt="Placeholder Image" class="media-image" />
+  </div>
 
   <!-- Контейнер для управління плеєром, фіксований внизу -->
-  <div class="controls-container">
+  <div class="controls-container" [class.hidden]="!showControls">
     <!-- Слайдер для керування часом відтворення -->
     <div class="slider-container" (click)="seekTrack($event)">
       <div class="slider-bar" [style.width.%]="(currentTimeInSeconds / durationInSeconds) * 100"></div>
@@ -105,13 +105,10 @@
   <!-- Список відео -->
   <div class="video-list" *ngIf="!showTracks">
     <h2>Відео</h2>
-    <div *ngFor="let video of videos"
-         class="video-item"
-         [ngClass]="{'active': video === currentVideo}">
+    <div *ngFor="let video of videos" class="video-item" [ngClass]="{'active': video === currentVideo}">
       <div class="video-cover-container">
-        <img src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg"
-             class="track-cover" />
-        <button class="play-button" (click)="togglePlay(video)">
+        <img src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg" class="track-cover" />
+        <button class="play-button" (click)="openVideoInNewTab(video)">
           <i class="fa fa-play"></i>
         </button>
       </div>
