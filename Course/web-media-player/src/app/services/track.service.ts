@@ -5,7 +5,7 @@ import { catchError, tap } from 'rxjs/operators';
 
 // Інтерфейс для треку
 export interface Track {
-  id: string; // Use `id` instead of `_id` for consistency
+  id: string;
   name: string;
   author: string;
   filePath: string;

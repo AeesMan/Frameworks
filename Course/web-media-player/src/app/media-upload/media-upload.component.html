@@ -1,5 +1,4 @@
 <div>
-  <!-- Кнопка для перемикання між музикою та відео -->
   <button class="toggle-button" (click)="toggleUploadType()">
     {{ uploadType === 'audio' ? 'Switch to Video' : 'Switch to Audio' }}
   </button>
@@ -23,7 +22,6 @@
 </div>
 
 <div class="main-container" [class.menu-open]="isMenuOpen">
-  <!-- Панель меню (ліва) -->
   <div id="menuPanel" class="menu-panel" [class.open]="isMenuOpen">
     <div class="menu-buttons">
       <button class="menu-item" routerLink="/">Home</button>
@@ -31,11 +29,9 @@
     </div>
   </div>
 
-  <!-- Кнопка для відкриття меню -->
   <button id="menuButton" class="menu-button" (click)="toggleMenu()">
     <i class="fa fa-bars"></i>
   </button>
 </div>
 
-<!-- Контейнер для відображення вмісту -->
 <router-outlet></router-outlet>

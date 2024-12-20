@@ -26,8 +26,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   currentTimeInSeconds: number = 0;
   durationInSeconds: number = 0;
   showTracks: boolean = true;
-  showControls: boolean = true; // Стан для панелі керування
-  showVideoPlayer: boolean = false; // Стан для відображення відеоплеєра
+  showControls: boolean = true;
+  showVideoPlayer: boolean = false;
 
   @ViewChild('videoPlayer', { static: false }) videoPlayer!: ElementRef<HTMLVideoElement>;
 
@@ -43,7 +43,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.audioElement.style.display = 'none';
     document.body.appendChild(this.audioElement);
 
-    // Відстежуємо кінець відтворення аудіо
+
     this.audioElement.addEventListener('ended', () => {
       if (this.repeatMode === 'single') {
         this.audioElement!.currentTime = 0;
@@ -53,18 +53,18 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
     });
 
-    // Відстежуємо зміну часу в аудіо
+
     this.audioElement.ontimeupdate = () => {
       this.updateTime(this.audioElement!);
     };
 
-    // Відстежуємо завантаження метаданих аудіо
+
     this.audioElement.onloadedmetadata = () => {
       this.durationInSeconds = this.audioElement!.duration;
       this.duration = this.formatTime(this.audioElement!.duration);
     };
 
-    // Відстежуємо кінець відтворення відео
+
     this.videoPlayer.nativeElement.addEventListener('ended', () => {
       if (this.repeatMode === 'single') {
         this.videoPlayer.nativeElement.currentTime = 0;
@@ -74,12 +74,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
     });
 
-    // Відстежуємо зміну часу у відео
     this.videoPlayer.nativeElement.ontimeupdate = () => {
       this.updateTime(this.videoPlayer.nativeElement);
     };
 
-    // Відстежуємо завантаження метаданих відео
     this.videoPlayer.nativeElement.onloadedmetadata = () => {
       this.durationInSeconds = this.videoPlayer.nativeElement.duration;
       this.duration = this.formatTime(this.videoPlayer.nativeElement.duration);
@@ -154,7 +152,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
   }
   
-  // Допоміжні функції для перевірки типу
+
   private isTrack(media: Track | Video): media is Track {
     return (media as Track).filePath !== undefined;
   }
@@ -168,8 +166,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
       if (this.audioElement.paused) {
         this.audioElement.play();
         this.isPlaying = true;
-        this.showControls = true; // Показуємо панель керування для аудіо
-        this.showVideoPlayer = false; // Приховуємо відеоплеєр
+        this.showControls = true;
+        this.showVideoPlayer = false;
         if (this.videoPlayer) {
           this.videoPlayer.nativeElement.pause();
         }
@@ -185,8 +183,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
       if (this.videoPlayer.nativeElement.paused) {
         this.videoPlayer.nativeElement.play();
         this.isPlaying = true;
-        this.showControls = false; // Приховуємо панель керування для відео
-        this.showVideoPlayer = true; // Показуємо відеоплеєр
+        this.showControls = false;
+        this.showVideoPlayer = true;
       } else {
         this.videoPlayer.nativeElement.pause();
         this.isPlaying = false;
@@ -277,8 +275,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (autoPlay) {
       this.audioElement.play();
       this.isPlaying = true;
-      this.showControls = true; // Показуємо панель керування для аудіо
-      this.showVideoPlayer = false; // Приховуємо відеоплеєр
+      this.showControls = true;
+      this.showVideoPlayer = false;
       if (this.videoPlayer) {
         this.videoPlayer.nativeElement.pause();
       }
@@ -305,8 +303,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     if (autoPlay) {
       this.videoPlayer.nativeElement.play();
       this.isPlaying = true;
-      this.showControls = false; // Приховуємо панель керування для відео
-      this.showVideoPlayer = true; // Показуємо відеоплеєр
+      this.showControls = false;
+      this.showVideoPlayer = true;
     } else {
       this.isPlaying = false;
     }
@@ -382,7 +380,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
   toggleMediaList(): void {
     this.showTracks = !this.showTracks;
 
-    // Якщо відображаються відео, приховуємо панель керування
     if (!this.showTracks) {
       this.showControls = false;
     } else {
@@ -392,6 +389,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   openVideoInNewTab(video: Video): void {
     const videoUrl = `http://localhost:5000/${video.filePath.replace(/\\/g, '/')}`;
-    window.open(videoUrl, '_blank'); // Відкриває нову вкладку
+    window.open(videoUrl, '_blank');
   }
 }

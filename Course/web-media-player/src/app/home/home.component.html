@@ -1,17 +1,12 @@
 <h1>Media Player</h1>
 
 <div class="main-container">
-  <!-- Фотографія або відеоплеєр з лівого боку -->
   <div class="media-container">
-    <!-- Відеоплеєр завжди на сторінці, але прихований -->
     <video #videoPlayer class="media-video" [class.hidden]="!showVideoPlayer" controls></video>
-    <!-- Відображаємо картинку, якщо відтворюється аудіо -->
     <img *ngIf="!showVideoPlayer" src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg" alt="Placeholder Image" class="media-image" />
   </div>
 
-  <!-- Контейнер для управління плеєром, фіксований внизу -->
   <div class="controls-container" [class.hidden]="!showControls">
-    <!-- Слайдер для керування часом відтворення -->
     <div class="slider-container" (click)="seekTrack($event)">
       <div class="slider-bar" [style.width.%]="(currentTimeInSeconds / durationInSeconds) * 100"></div>
       <div class="slider-knob-container">
@@ -19,7 +14,6 @@
       </div>
     </div>
 
-    <!-- Інформація про трек -->
     <div class="track-info">
       <span class="track-title">{{ currentTrack?.name || currentVideo?.name }}</span>
     </div>
@@ -27,25 +21,24 @@
       <span>{{ currentTime }}</span> / <span>{{ duration }}</span>
     </div>
 
-    <!-- Кнопки керування -->
     <button (click)="playPreviousTrack()">
-      <i class="fa fa-backward"></i> <!-- "Попередній трек" -->
+      <i class="fa fa-backward"></i>
     </button>
     <button (click)="togglePlayPause()">
-      <i [class]="isPlaying ? 'fa fa-pause' : 'fa fa-play'"></i> <!-- Зміна іконки -->
+      <i [class]="isPlaying ? 'fa fa-pause' : 'fa fa-play'"></i>
     </button>
     <button (click)="playNextTrack()">
-      <i class="fa fa-forward"></i> <!-- "Наступний трек" -->
+      <i class="fa fa-forward"></i>
     </button>
     <button (click)="toggleRepeatMode()">
       <i [ngClass]="{
             'fa fa-times': repeatMode === 'none',
             'fa-solid fa-1': repeatMode === 'single',
             'fa-solid fa-repeat': repeatMode === 'all'
-          }"></i><!-- "Повтор" -->
+          }"></i>
     </button>
 
-    <!-- Слайдер для гучності -->
+
     <input
       id="volumeSlider"
       type="range"
@@ -57,7 +50,6 @@
   </div>
 
   <div class="main-container" [class.menu-open]="isMenuOpen">
-    <!-- Панель меню (ліва) -->
     <div id="menuPanel" class="menu-panel" [class.open]="isMenuOpen">
       <div class="menu-buttons">
         <button class="menu-item" routerLink="/">Home</button>
@@ -65,16 +57,13 @@
       </div>
     </div>
 
-    <!-- Кнопка для відкриття меню -->
     <button id="menuButton" class="menu-button" (click)="toggleMenu()">
       <i class="fa fa-bars"></i>
     </button>
   </div>
 
-  <!-- Контейнер для відображення вмісту -->
   <router-outlet></router-outlet>
 
-  <!-- Кнопка для перемикання між списками -->
   <button class="toggle-media-list" (click)="toggleMediaList()">
     {{ showTracks ? 'Show Videos' : 'Show Tracks' }}
   </button>

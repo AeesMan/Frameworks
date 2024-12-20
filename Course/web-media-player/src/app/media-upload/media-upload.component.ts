@@ -11,7 +11,7 @@ import { RouterModule } from '@angular/router';
   imports: [FormsModule, RouterModule],
 })
 export class MediaUploadComponent {
-  uploadType: 'audio' | 'video' = 'audio'; // Початковий тип - аудіо
+  uploadType: 'audio' | 'video' = 'audio';
   name: string = '';
   author: string = '';
   file: File | null = null;
@@ -19,12 +19,10 @@ export class MediaUploadComponent {
 
   constructor(private http: HttpClient) {}
 
-  // Перемикання між аудіо та відео
   toggleUploadType() {
     this.uploadType = this.uploadType === 'audio' ? 'video' : 'audio';
   }
 
-  // Обробка вибору файлу
   onFileChange(event: any) {
     const file = event.target.files[0];
     const allowedTypes =
@@ -44,12 +42,10 @@ export class MediaUploadComponent {
     }
   }
 
-  // Відкриття/закриття меню
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }
 
-  // Завантаження файлу
   uploadFile() {
     if (!this.file || !this.name || !this.author) {
       alert('Please fill in all fields and select a file.');
@@ -79,7 +75,6 @@ export class MediaUploadComponent {
     });
   }
 
-  // Скидання форми
   resetForm() {
     this.name = '';
     this.author = '';
