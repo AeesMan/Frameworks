@@ -272,6 +272,7 @@ input[type="range"] {
 }
 
 .track-item {
+  position: relative; /* Для позиціонування кнопок */
   display: flex;
   align-items: center;
   margin-bottom: 15px;
@@ -296,6 +297,7 @@ input[type="range"] {
   width: 50px;
   height: 50px;
   margin-right: 10px;
+  z-index: 0;
 }
 
 .track-cover {
@@ -307,6 +309,8 @@ input[type="range"] {
 
 .track-info {
   flex-grow: 1;
+  z-index: 0;
+  pointer-events: none; /* Щоб кліки проходили крізь до play-button */
 }
 
 .track-title {
@@ -323,23 +327,34 @@ input[type="range"] {
 
 .play-button {
   position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  z-index: 1;
+  color: transparent;
+  cursor: pointer;
+}
+
+.play-button i {
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: rgba(0, 123, 255, 0.0);
-  color: rgba(255, 255, 255, 0.0);
-  border: none;
-  padding: 18px;
-  font-size: 5px;
-  cursor: pointer;
-  border-radius: 11%;
-  transition: background-color 0.2s ease;
-  z-index: 1;
+  font-size: 20px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.play-button:hover i {
+  opacity: 1;
 }
 
 .play-button:hover {
-  background-color: rgb(0, 0, 0, 0.5);
-  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.3);
   color: white;
 }
 
@@ -348,18 +363,26 @@ input[type="range"] {
 }
 
 .delete-button {
-  margin-left: auto;
-  background: none;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.5);
   border: none;
   color: white;
-  font-size: 1.2rem;
+  font-size: 1rem;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2; /* Вище кнопки play */
   cursor: pointer;
-  padding: 5px;
-  transition: color 0.2s ease;
+  transition: background 0.2s ease;
 }
 
 .delete-button:hover {
-  color: #ff4d4d;
+  background: rgba(255, 0, 0, 0.7);
 }
 
 /* Панель меню */
@@ -414,7 +437,7 @@ input[type="range"] {
 }
 
 .menu-item:hover {
-  background-color: #555;
+  background-color: #575757;
 }
 
 /* Головна сторінка */

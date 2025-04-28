@@ -1,0 +1,23 @@
+<!-- Меню -->
+<div class="main-container" [class.menu-open]="isMenuOpen">
+  <div id="menuPanel" class="menu-panel" [class.open]="isMenuOpen">
+    <div class="menu-buttons">
+      <button class="menu-item" routerLink="/">Home</button>
+      <button class="menu-item" routerLink="/upload">Upload</button>
+    </div>
+  </div>
+
+  <button id="menuButton" class="menu-button" (click)="toggleMenu()">
+    <i class="fa fa-bars"></i>
+  </button>
+</div>
+
+<!-- Контент профілю -->
+<div class="profile-container">
+  <h1>Профіль користувача</h1>
+  <div class="profile-info">
+    <p><strong>Ім'я:</strong> {{ user.name }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Про мене:</strong> {{ user.bio }}</p>
+  </div>
+</div>

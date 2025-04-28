@@ -314,12 +314,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
   }
 
-  deleteTrack(track: Track): void {
+  deleteTrack(event: Event, track: Track): void {
+    event.stopPropagation(); // Запобігає спрацьовуванню play-button
     if (!track.id) {
       console.error('Track ID is undefined');
       return;
     }
-
+  
     this.trackService.deleteTrack(track.id).subscribe(
       () => {
         this.tracks = this.tracks.filter((t) => t.id !== track.id);
@@ -331,7 +332,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
           this.currentTrack = null;
           this.isPlaying = false;
         }
-
         this.loadTracks();
       },
       (error) => {
@@ -378,8 +378,19 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   toggleMediaList(): void {
+    // Пауза поточного трека або відео перед переключенням
+    if (this.audioElement && !this.audioElement.paused) {
+      this.audioElement.pause();
+      this.isPlaying = false;
+    }
+    
+    if (this.videoPlayer && !this.videoPlayer.nativeElement.paused) {
+      this.videoPlayer.nativeElement.pause();
+      this.isPlaying = false;
+    }
+  
     this.showTracks = !this.showTracks;
-
+  
     if (!this.showTracks) {
       this.showControls = false;
     } else {

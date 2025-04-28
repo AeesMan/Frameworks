@@ -52,7 +52,7 @@
   <div class="main-container" [class.menu-open]="isMenuOpen">
     <div id="menuPanel" class="menu-panel" [class.open]="isMenuOpen">
       <div class="menu-buttons">
-        <button class="menu-item" routerLink="/">Home</button>
+        <button class="menu-item" routerLink="/profile">Profile</button>
         <button class="menu-item" routerLink="/upload">Upload</button>
       </div>
     </div>
@@ -69,27 +69,32 @@
   </button>
 
   <!-- Список треків -->
-  <div class="track-list" *ngIf="showTracks">
-    <h2>Треки</h2>
-    <div *ngFor="let track of tracks"
-         class="track-item"
-         [ngClass]="{'active': track === currentTrack}">
-      <div class="track-cover-container">
-        <img src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg"
-             class="track-cover" />
-        <button class="play-button" (click)="togglePlay(track)">
-          <i class="fa fa-play"></i>
-        </button>
-      </div>
-      <div class="track-info">
-        <p class="track-title">{{ track.name }}</p>
-        <p class="track-artist">{{ track.author }}</p>
-      </div>
-      <button class="delete-button" (click)="deleteTrack(track)">
-        <i class="fa fa-trash"></i>
-      </button>
+<!-- Список треків -->
+<div class="track-list" *ngIf="showTracks">
+  <h2>Треки</h2>
+  <div *ngFor="let track of tracks"
+       class="track-item"
+       [ngClass]="{'active': track === currentTrack}">
+    <!-- Кнопка play на весь блок -->
+    <button class="play-button" (click)="togglePlay(track)">
+      <i class="fa fa-play"></i>
+    </button>
+    
+    <!-- Кнопка видалення поверх кнопки play -->
+    <button class="delete-button" (click)="deleteTrack($event, track)">
+      <i class="fa fa-trash"></i>
+    </button>
+    
+    <div class="track-cover-container">
+      <img src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg"
+           class="track-cover" />
+    </div>
+    <div class="track-info">
+      <p class="track-title">{{ track.name }}</p>
+      <p class="track-artist">{{ track.author }}</p>
     </div>
   </div>
+</div>
 
   <!-- Список відео -->
   <div class="video-list" *ngIf="!showTracks">
