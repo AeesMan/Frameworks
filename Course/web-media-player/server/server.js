@@ -1,23 +1,29 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const multer = require("multer");
 const cors = require("cors");
 const path = require("path");
 const fs = require("fs");
-
-// Ініціалізація додатку
+const fileUpload = require("express-fileupload");
+const cloudinary = require("cloudinary").v2;
+const bcrypt = require("bcrypt");
 const app = express();
-app.use(cors());
-app.use(express.json()); // Для обробки JSON
-app.use(express.urlencoded({ extended: true })); // Для обробки form-urlencoded
 
-// Перевіряємо і створюємо папку "uploads", якщо її немає
+cloudinary.config({
+  cloud_name: "dz9uyygy2",
+  api_key: "795616917557494",
+  api_secret: "qtYiNSSkSG-3FWVRLycddrKKM0M",
+});
+
+app.use(fileUpload({ useTempFiles: true, tempFileDir: "/tmp/" }));
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const uploadDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir);
 }
 
-// Підключення до MongoDB
 mongoose
   .connect("mongodb://127.0.0.1:27017/mediaCollection", {
     useNewUrlParser: true,
@@ -26,226 +32,304 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// Схема та модель для зберігання треків
+function getPublicIdFromUrl(url) {
+  const urlParts = url.split("/");
+  const fileName = urlParts.pop().split(".")[0];
+  const folder = urlParts.slice(urlParts.indexOf("media")).join("/");
+  return `${folder}/${fileName}`;
+}
+
 const trackSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  author: { type: String, required: true },
+  author: { type: String, required: true }, // можеш залишити для відображення імені
   filePath: { type: String, required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // ← ДОДАНО
 });
+
 
 const Track = mongoose.model("Track", trackSchema);
 
-
-// Схема та модель для зберігання відео
 const videoSchema = new mongoose.Schema({
   name: { type: String, required: true },
   author: { type: String, required: true },
   filePath: { type: String, required: true },
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // ← ДОДАНО
 });
+
 
 const Video = mongoose.model("Video", videoSchema);
 
-// Налаштування зберігання файлів (multer)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Збереження файлів в папці "uploads"
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
+//  User
+const userSchema = new mongoose.Schema({
+  login: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  usedStorage: { type: Number, default: 0 },
 });
 
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ["audio/mpeg", "audio/wav"];
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only audio files are allowed!"), false);
-    }
-  },
+
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
-const videoUpload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = ["video/mp4", "video/webm"];
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error("Only video files are allowed!"), false);
-    }
-  },
-});
+userSchema.methods.comparePassword = function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
-// Ендпоінт для завантаження треків
-app.post("/uploads", upload.single("file"), async (req, res) => {
+const User = mongoose.model("User", userSchema);
+
+// === AUTH ===
+
+app.post("/auth/register", async (req, res) => {
   try {
-    console.log("Request body:", req.body);
-    console.log("Uploaded file:", req.file);
-
-    // Перевірка наявності завантаженого файлу
-    if (!req.file) {
-      throw new Error("File not uploaded");
+    const { login, password } = req.body;
+    if (!login || !password) {
+      return res.status(400).json({ error: "Login and password required" });
     }
 
-    const { name, author } = req.body;
+    const userExists = await User.findOne({ login });
+    if (userExists) {
+      return res.status(400).json({ error: "User already exists" });
+    }
+
+    const newUser = new User({ login, password });
+    await newUser.save();
+
+    res.status(201).json({ message: "User registered", userId: newUser._id });
+  } catch (err) {
+    console.error("❌ Register error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.post("/auth/login", async (req, res) => {
+  try {
+    const { login, password } = req.body;
+    const user = await User.findOne({ login });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const match = await user.comparePassword(password);
+    if (!match) return res.status(401).json({ error: "Invalid credentials" });
+
+    // Вивести userId в консоль для тесту
+    console.log(`Logged in user ID: ${user._id}`);
+
+    res.status(200).json({ message: "Login successful", userId: user._id });
+  } catch (err) {
+    console.error("❌ Login error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+
+// Отримати дані користувача за ID (для профілю)
+app.get("/users/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("-password");
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json(user);
+  } catch (err) {
+    console.error("❌ Get user error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// === UPLOADS ===
+app.post("/uploads", async (req, res) => {
+  try {
+    const { name, author, userId } = req.body;
+    const file = req.files?.file;
+    if (!file) return res.status(400).send({ error: "No file uploaded" });
+
+    const allowedTypes = ["audio/wav", "audio/mpeg"];
+    if (!allowedTypes.includes(file.mimetype)) {
+      return res.status(400).send({ error: "Invalid file type" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send({ error: "User not found" });
+
+    const fileSize = file.size;
+    const maxStorage = 2 * 1024 * 1024 * 1024;
+
+    if (user.usedStorage + fileSize > maxStorage) {
+      return res.status(400).send({ error: "Storage limit exceeded (2 GB)" });
+    }
+
+    const uniqueId = Date.now();
+    const result = await cloudinary.uploader.upload(file.tempFilePath, {
+      resource_type: "video",
+      folder: `users/${user._id}/audio`,
+      public_id: `${uniqueId}_${file.name.split('.')[0]}`
+    });
+
     const track = new Track({
       name,
-      author,
-      filePath: req.file.path, // Шлях до файлу зберігається в базі даних
+      author: user.login,
+      filePath: result.secure_url,
+      user: user._id
     });
 
     await track.save();
-    res.status(200).send({ message: "File uploaded successfully", track });
+
+    user.usedStorage += fileSize;
+    await user.save();
+
+    res.status(200).send({ message: "Uploaded successfully", track });
   } catch (err) {
-    console.error("Upload error:", err);
-    res.status(500).send({ error: err.message });
+    console.error(err);
+    res.status(500).send({ error: "Upload failed" });
   }
 });
 
-
-app.post("/uploads/video", videoUpload.single("file"), async (req, res) => {
+app.post("/uploads/video", async (req, res) => {
   try {
-    console.log("Request body:", req.body);
-    console.log("Uploaded file:", req.file);
+    const { name, author, userId } = req.body;
+    const file = req.files?.file;
+    if (!file) return res.status(400).send({ error: "No file uploaded" });
 
-    if (!req.file) {
-      throw new Error("File not uploaded");
+    const allowedTypes = ["video/mp4", "video/webm"];
+    if (!allowedTypes.includes(file.mimetype)) {
+      return res.status(400).send({ error: "Invalid file type" });
     }
 
-    const { name, author } = req.body;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send({ error: "User not found" });
+
+    const fileSize = file.size;
+    const maxStorage = 2 * 1024 * 1024 * 1024;
+
+    if (user.usedStorage + fileSize > maxStorage) {
+      return res.status(400).send({ error: "Storage limit exceeded (2 GB)" });
+    }
+
+    const result = await cloudinary.uploader.upload(file.tempFilePath, {
+      resource_type: "video",
+      folder: `users/${user._id}/video`,
+    });
+
     const video = new Video({
       name,
-      author,
-      filePath: req.file.path,
+      author: user.login,
+      filePath: result.secure_url,
+      user: user._id
     });
 
     await video.save();
-    res.status(200).send({ message: "Video uploaded successfully", video });
+
+    user.usedStorage += fileSize;
+    await user.save();
+
+    res.status(200).send({ message: "Video uploaded", video });
   } catch (err) {
     console.error("Upload error:", err);
-    res.status(500).send({ error: err.message });
+    res.status(500).send({ error: "Upload failed" });
   }
 });
 
-// Ендпоінт для отримання списку треків
-app.get("/uploads", async (req, res) => {
-  try {
-    const tracks = await Track.find();
-    // Transform tracks to include `id` (MongoDB `_id`)
-    const transformedTracks = tracks.map((track) => ({
-      id: track._id, // Ensure `_id` is included
-      name: track.name,
-      author: track.author,
-      filePath: track.filePath,
-      mimeType: track.mimeType, // Add this if needed
-    }));
-    res.status(200).send(transformedTracks);
-  } catch (err) {
-    console.error("Error fetching tracks:", err);
-    res.status(500).send({ error: err.message });
-  }
-});
+// === DELETE ===
 
-app.get("/uploads/video", async (req, res) => {
-  try {
-    const videos = await Video.find();
-    const transformedVideos = videos.map((video) => ({
-      id: video._id,
-      name: video.name,
-      author: video.author,
-      filePath: video.filePath,
-    }));
-    res.status(200).send(transformedVideos);
-  } catch (err) {
-    console.error("Error fetching videos:", err);
-    res.status(500).send({ error: err.message });
-  }
-});
-
-// Сервіс для статичних файлів
-app.use("/uploads", express.static(path.join(__dirname, "uploads"), {
-  setHeaders: (res, path) => {
-    if (path.endsWith(".mp3")) {
-      res.set("Content-Type", "audio/mpeg");
-    } else if (path.endsWith(".wav")) {
-      res.set("Content-Type", "audio/wav");
-    } else if (path.endsWith(".mp4")) {
-      res.set("Content-Type", "video/mp4");
-    } else if (path.endsWith(".webm")) {
-      res.set("Content-Type", "video/webm");
-    }
-  }
-}));
-
-// Ендпоінт для видалення трека
 app.delete("/uploads/:id", async (req, res) => {
   try {
-    const trackId = req.params.id; // Отримуємо ID з параметрів запиту
-    console.log("Deleting track with ID:", trackId); // Логування для перевірки ID
+    const { userId } = req.query;
+    const track = await Track.findByIdAndDelete(req.params.id);
+    if (!track) return res.status(404).send({ message: "Track not found" });
 
-    const track = await Track.findByIdAndDelete(trackId);
-    if (!track) {
-      return res.status(404).send({ message: "Track not found" });
-    }
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send({ message: "User not found" });
 
-    // Формуємо шлях до файлу
-    const filePath = path.join(__dirname, track.filePath.replace(/\\/g, '/'));
-    console.log("Attempting to delete file at:", filePath); // Логування шляху до файлу
+    const sanitizeFileName = (name) => name.replace(/\.[^/.]+$/, "").replace(/\s+/g, "_");
 
-    // Перевіряємо, чи файл існує
-    if (fs.existsSync(filePath)) {
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          console.error("Error deleting file:", err);
-        } else {
-          console.log("File deleted successfully:", filePath);
-        }
-      });
-    } else {
-      console.log("File not found for deletion:", filePath);
-    }
+    const publicId = `${Date.now()}_${sanitizeFileName(file.name)}`;
+    
+    const resource = await cloudinary.api.resource(publicId, { resource_type: "video" });
+    const fileSize = resource.bytes;
 
-    res.status(200).send({ message: "Track deleted successfully" });
+    await cloudinary.uploader.destroy(publicId, { resource_type: "video" });
+
+    user.usedStorage = Math.max(0, user.usedStorage - fileSize);
+    await user.save();
+
+    res.status(200).send({ message: "Track deleted and storage updated" });
   } catch (err) {
-    console.error("Error deleting track:", err);
-    res.status(500).send({ error: err.message });
+    console.error("Delete error:", err);
+    res.status(500).send({ error: "Error deleting file" });
   }
 });
-
 
 app.delete("/uploads/video/:id", async (req, res) => {
   try {
-    const videoId = req.params.id;
-    const video = await Video.findByIdAndDelete(videoId);
-    if (!video) {
-      return res.status(404).send({ message: "Video not found" });
-    }
+    const { userId } = req.query;
+    const video = await Video.findByIdAndDelete(req.params.id);
+    if (!video) return res.status(404).send({ message: "Video not found" });
 
-    const filePath = path.join(__dirname, video.filePath.replace(/\\/g, '/'));
-    if (fs.existsSync(filePath)) {
-      fs.unlink(filePath, (err) => {
-        if (err) {
-          console.error("Error deleting file:", err);
-        } else {
-          console.log("File deleted successfully:", filePath);
-        }
-      });
-    } else {
-      console.log("File not found for deletion:", filePath);
-    }
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).send({ message: "User not found" });
 
-    res.status(200).send({ message: "Video deleted successfully" });
+    const publicId = getPublicIdFromUrl(video.filePath);
+    const resource = await cloudinary.api.resource(publicId, { resource_type: "video" });
+    const fileSize = resource.bytes;
+
+    await cloudinary.uploader.destroy(publicId, { resource_type: "video" });
+
+    user.usedStorage = Math.max(0, user.usedStorage - fileSize);
+    await user.save();
+
+    res.status(200).send({ message: "Video deleted and storage updated" });
   } catch (err) {
-    console.error("Error deleting video:", err);
-    res.status(500).send({ error: err.message });
+    console.error("Delete video error:", err);
+    res.status(500).send({ error: "Error deleting video" });
+  }
+});
+
+// === GET ===
+
+// Отримати треки конкретного користувача
+app.get("/tracks/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const tracks = await Track.find({ user: userId });
+    res.json(tracks);
+  } catch (err) {
+    console.error("❌ Error fetching tracks:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+// Отримати відео конкретного користувача
+app.get("/videos/:userId", async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const videos = await Video.find({ user: userId });
+    res.json(videos);
+  } catch (err) {
+    console.error("❌ Error fetching videos:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
 
-// Сервер
+
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+
+
+//ВИДАЛИТИ ПІСЛЯ ПРОДАКШЕНУ ДУЖЕ НЕБЕСПЕЧНО ЗАЛИШАТИ!!!!!!!!!!!!!!!
+
+app.get("/auth/users", async (req, res) => {
+  const users = await User.find({}, "-password"); // без паролів
+  res.send(users);
+});
+
+
+
+
 const PORT = 5000;
 app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);

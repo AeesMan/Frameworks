@@ -23,14 +23,14 @@ export interface Video {
   providedIn: 'root',
 })
 export class MediaService {
-  private apiUrl = 'http://localhost:5000/uploads'; // Базовий URL для треків
-  private videoApiUrl = 'http://localhost:5000/uploads/video'; // Базовий URL для відео
+  private apiUrl = 'http://localhost:5000/uploads'; //  URL для треків
+  private videoApiUrl = 'http://localhost:5000/uploads/video'; //  URL для відео
 
   constructor(private http: HttpClient) {}
 
   // Отримання списку треків
-  getTracks(): Observable<Track[]> {
-    return this.http.get<Track[]>(this.apiUrl).pipe(
+  getTracks(userId: string): Observable<Track[]> {
+    return this.http.get<Track[]>(`http://localhost:5000/tracks/${userId}`).pipe(
       tap(tracks => {
         console.log('Fetched tracks:', tracks);
       }),
@@ -54,8 +54,8 @@ export class MediaService {
   }
 
   // Отримання списку відео
-  getVideos(): Observable<Video[]> {
-    return this.http.get<Video[]>(this.videoApiUrl).pipe(
+  getVideos(userId: string): Observable<Video[]> {
+     return this.http.get<Video[]>(`http://localhost:5000/videos/${userId}`).pipe(
       tap(videos => {
         console.log('Fetched videos:', videos);
       }),

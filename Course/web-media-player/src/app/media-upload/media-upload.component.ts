@@ -1,14 +1,15 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-media-upload',
   standalone: true,
   templateUrl: './media-upload.component.html',
   styleUrls: ['./media-upload.component.css'],
-  imports: [FormsModule, RouterModule],
+  imports: [FormsModule, RouterModule, CommonModule],
 })
 export class MediaUploadComponent {
   uploadType: 'audio' | 'video' = 'audio';
@@ -16,6 +17,7 @@ export class MediaUploadComponent {
   author: string = '';
   file: File | null = null;
   isMenuOpen: boolean = false;
+  isUploading: boolean = false;
 
   constructor(private http: HttpClient) {}
 
@@ -31,6 +33,11 @@ export class MediaUploadComponent {
         : ['video/mp4', 'video/webm'];
 
     if (file && allowedTypes.includes(file.type)) {
+      if (file.size > 100 * 1024 * 1024) {
+        alert('File is too large. Maximum size is 100MB.');
+        this.file = null;
+        return;
+      }
       this.file = file;
     } else {
       alert(
@@ -46,34 +53,55 @@ export class MediaUploadComponent {
     this.isMenuOpen = !this.isMenuOpen;
   }
 
-  uploadFile() {
-    if (!this.file || !this.name || !this.author) {
-      alert('Please fill in all fields and select a file.');
-      return;
-    }
+  uploadFile(event: Event) {
+  event.preventDefault();
 
-    const formData = new FormData();
-    formData.append('file', this.file);
-    formData.append('name', this.name);
-    formData.append('author', this.author);
-
-    const apiUrl =
-      this.uploadType === 'audio'
-        ? 'http://localhost:5000/uploads'
-        : 'http://localhost:5000/uploads/video';
-
-    this.http.post(apiUrl, formData).subscribe({
-      next: (response) => {
-        console.log('Upload successful', response);
-        alert('File uploaded successfully!');
-        this.resetForm();
-      },
-      error: (err) => {
-        console.error('Upload error', err);
-        alert('File upload failed.');
-      },
-    });
+  if (!this.file || !this.name) {
+    alert('Please fill in all fields and select a file.');
+    return;
   }
+
+  const userId = localStorage.getItem('userId');
+
+if (!userId) {
+  alert('You must be logged in to upload files.');
+  return;
+}
+
+
+  console.log('User ID from localStorage:', userId); // Вивести userId в консоль
+
+  const formData = new FormData();
+  formData.append('file', this.file);
+  formData.append('name', this.name);
+  formData.append('author', userId); // залишаємо, якщо ти хочеш показувати ім’я
+  formData.append('userId', userId); // ОБОВ’ЯЗКОВО додаємо це
+
+
+  const apiUrl =
+    this.uploadType === 'audio'
+      ? 'http://localhost:5000/uploads'
+      : 'http://localhost:5000/uploads/video';
+
+
+
+  this.isUploading = true;
+
+  this.http.post(apiUrl, formData).subscribe({
+    next: (response) => {
+      console.log('Upload successful', response);
+      alert('File uploaded successfully!');
+      this.resetForm();
+      this.isUploading = false;
+    },
+    error: (err) => {
+      console.error('Upload error', err);
+      alert('File upload failed.');
+      this.isUploading = false;
+    },
+  });
+}
+
 
   resetForm() {
     this.name = '';

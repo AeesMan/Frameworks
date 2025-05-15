@@ -1,0 +1,26 @@
+<div class="wrapper">
+  <form (ngSubmit)="register()">
+    <h2>Register</h2>
+
+    <div class="input-field">
+      <input type="text" required [(ngModel)]="user.login" name="login" />
+      <label>Enter your login</label>
+    </div>
+
+    <div class="input-field">
+      <input type="password" required [(ngModel)]="user.password" name="password" />
+      <label>Enter your password</label>
+    </div>
+
+    <div class="input-field">
+      <input type="password" required [(ngModel)]="user.confirm" name="confirm" />
+      <label>Confirm your password</label>
+    </div>
+
+    <button type="submit">Register</button>
+
+    <div class="register">
+      <p>Have an account? <a routerLink="/login">Login</a></p>
+    </div>
+  </form>
+</div>

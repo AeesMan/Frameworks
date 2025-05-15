@@ -1,0 +1,21 @@
+<div class="wrapper">
+  <form (submit)="login()">
+    <h2>Login</h2>
+
+    <div class="input-field">
+      <input type="text" required [(ngModel)]="user.login" name="login">
+      <label>Enter your login</label>
+    </div>
+
+    <div class="input-field">
+      <input type="password" required [(ngModel)]="user.password" name="password">
+      <label>Enter your password</label>
+    </div>
+
+    <button type="submit">Log In</button>
+
+    <div class="register">
+      <p>Don't have an account? <a routerLink="/register">Register</a></p>
+    </div>
+  </form>
+</div>

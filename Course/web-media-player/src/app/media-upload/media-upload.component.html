@@ -4,27 +4,32 @@
   </button>
 
   <h1>Upload {{ uploadType === 'audio' ? 'Audio' : 'Video' }}</h1>
-  <form (submit)="uploadFile()">
+
+  <form (submit)="uploadFile($event)">
     <div>
       <label>Name:</label>
       <input type="text" [(ngModel)]="name" name="name" required />
     </div>
-    <div>
-      <label>Author:</label>
-      <textarea [(ngModel)]="author" name="author"></textarea>
-    </div>
+
     <div>
       <label>File:</label>
-      <input type="file" (change)="onFileChange($event)" />
+      <input type="file" (change)="onFileChange($event)" required />
     </div>
-    <button type="submit">Upload</button>
+
+    <button type="submit" [disabled]="isUploading">
+      {{ isUploading ? 'Uploading...' : 'Upload' }}
+    </button>
   </form>
+
+  <div *ngIf="isUploading" style="margin-top: 10px;">
+    <p>Uploading, please wait...</p>
+  </div>
 </div>
 
 <div class="main-container" [class.menu-open]="isMenuOpen">
   <div id="menuPanel" class="menu-panel" [class.open]="isMenuOpen">
     <div class="menu-buttons">
-      <button class="menu-item" routerLink="/">Home</button>
+      <button class="menu-item" routerLink="/home">Home</button>
       <button class="menu-item" routerLink="/profile">Profile</button>
     </div>
   </div>

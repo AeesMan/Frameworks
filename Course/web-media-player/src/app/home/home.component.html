@@ -3,7 +3,7 @@
 <div class="main-container">
   <div class="media-container">
     <video #videoPlayer class="media-video" [class.hidden]="!showVideoPlayer" controls></video>
-    <img *ngIf="!showVideoPlayer" src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg" alt="Placeholder Image" class="media-image" />
+    <img *ngIf="!showVideoPlayer" src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/f0b328bb-0c7f-4058-acc9-9234c67b23fe/da3tkl9-d631daa4-352c-489f-9827-64065b44b83e.png/v1/fill/w_800,h_450,q_80,strp/logo___media_player_classic_by_convalise_da3tkl9-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NDUwIiwicGF0aCI6IlwvZlwvZjBiMzI4YmItMGM3Zi00MDU4LWFjYzktOTIzNGM2N2IyM2ZlXC9kYTN0a2w5LWQ2MzFkYWE0LTM1MmMtNDg5Zi05ODI3LTY0MDY1YjQ0YjgzZS5wbmciLCJ3aWR0aCI6Ijw9ODAwIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.Sn_gp4b3hMbdsHHtwDhLWh5nUwrjiGj635kvDbSBAEo" />
   </div>
 
   <div class="controls-container" [class.hidden]="!showControls">
@@ -69,18 +69,16 @@
   </button>
 
   <!-- Список треків -->
-<!-- Список треків -->
+
 <div class="track-list" *ngIf="showTracks">
   <h2>Треки</h2>
   <div *ngFor="let track of tracks"
        class="track-item"
        [ngClass]="{'active': track === currentTrack}">
-    <!-- Кнопка play на весь блок -->
     <button class="play-button" (click)="togglePlay(track)">
       <i class="fa fa-play"></i>
     </button>
-    
-    <!-- Кнопка видалення поверх кнопки play -->
+  
     <button class="delete-button" (click)="deleteTrack($event, track)">
       <i class="fa fa-trash"></i>
     </button>

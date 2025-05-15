@@ -2,7 +2,7 @@
 <div class="main-container" [class.menu-open]="isMenuOpen">
   <div id="menuPanel" class="menu-panel" [class.open]="isMenuOpen">
     <div class="menu-buttons">
-      <button class="menu-item" routerLink="/">Home</button>
+      <button class="menu-item" routerLink="/home">Home</button>
       <button class="menu-item" routerLink="/upload">Upload</button>
     </div>
   </div>
@@ -16,8 +16,11 @@
 <div class="profile-container">
   <h1>Профіль користувача</h1>
   <div class="profile-info">
-    <p><strong>Ім'я:</strong> {{ user.name }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>Про мене:</strong> {{ user.bio }}</p>
+    <p><strong>Логін:</strong> {{ user.login }}</p>
+    <p *ngIf="user.email"><strong>Email:</strong> {{ user.email }}</p>
+    <p *ngIf="user.bio"><strong>Про мене:</strong> {{ user.bio }}</p>
+    <p><strong>Використано місця: </strong>{{ formattedUsedStorage }} / 2 ГБ({{ usedPercentage | number: '1.0-2' }}%)</p>
+
   </div>
 </div>
+

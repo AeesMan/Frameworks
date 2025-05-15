@@ -34,8 +34,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
   constructor(private trackService: MediaService) {}
 
   ngOnInit(): void {
-    this.loadTracks();
-    this.loadVideos();
+    const userId = localStorage.getItem('userId');
+    console.log('Loaded userId from localStorage:', userId); // 🔍
+    if (userId) {
+      this.loadTracks(userId);
+      this.loadVideos(userId);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -88,8 +92,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.isMenuOpen = !this.isMenuOpen;
   }
 
-  loadTracks(): void {
-    this.trackService.getTracks().subscribe(
+  loadTracks(userId: string): void {
+    this.trackService.getTracks(userId).subscribe(
       (data: any) => {
         this.tracks = data.map((track: any) => ({
           id: track.id,
@@ -112,8 +116,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     );
   }
 
-  loadVideos(): void {
-    this.trackService.getVideos().subscribe(
+  loadVideos(userId: string): void {
+    this.trackService.getVideos(userId).subscribe(
       (data: any) => {
         this.videos = data.map((video: any) => ({
           id: video.id,
@@ -269,7 +273,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
     this.currentTrack = track;
     const fixedFilePath = track.filePath.replace(/\\/g, '/');
-    this.audioElement.src = `http://localhost:5000/${fixedFilePath}`;
+    this.audioElement.src = `${fixedFilePath}`;
     this.audioElement.load();
 
     if (autoPlay) {
@@ -297,7 +301,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
     this.currentVideo = video;
     const fixedFilePath = video.filePath.replace(/\\/g, '/');
-    this.videoPlayer.nativeElement.src = `http://localhost:5000/${fixedFilePath}`;
+    this.videoPlayer.nativeElement.src = `${fixedFilePath}`;
     this.videoPlayer.nativeElement.load();
 
     if (autoPlay) {
@@ -314,57 +318,66 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
   }
 
-  deleteTrack(event: Event, track: Track): void {
-    event.stopPropagation(); // Запобігає спрацьовуванню play-button
-    if (!track.id) {
-      console.error('Track ID is undefined');
-      return;
-    }
-  
-    this.trackService.deleteTrack(track.id).subscribe(
-      () => {
-        this.tracks = this.tracks.filter((t) => t.id !== track.id);
-        if (this.currentTrack && this.currentTrack.id === track.id) {
-          if (this.audioElement) {
-            this.audioElement.pause();
-            this.audioElement.src = '';
-          }
-          this.currentTrack = null;
-          this.isPlaying = false;
-        }
-        this.loadTracks();
-      },
-      (error) => {
-        console.error('Error deleting track:', error);
-      }
-    );
+deleteTrack(event: Event, track: Track): void {
+  event.stopPropagation();
+  if (!track.id) {
+    console.error('Track ID is undefined');
+    return;
   }
 
-  deleteVideo(video: Video): void {
-    if (!video.id) {
-      console.error('Video ID is undefined');
-      return;
-    }
-
-    this.trackService.deleteVideo(video.id).subscribe(
-      () => {
-        this.videos = this.videos.filter((v) => v.id !== video.id);
-        if (this.currentVideo && this.currentVideo.id === video.id) {
-          if (this.videoPlayer) {
-            this.videoPlayer.nativeElement.pause();
-            this.videoPlayer.nativeElement.src = '';
-          }
-          this.currentVideo = null;
-          this.isPlaying = false;
+  this.trackService.deleteTrack(track.id).subscribe(
+    () => {
+      this.tracks = this.tracks.filter((t) => t.id !== track.id);
+      if (this.currentTrack && this.currentTrack.id === track.id) {
+        if (this.audioElement) {
+          this.audioElement.pause();
+          this.audioElement.src = '';
         }
-
-        this.loadVideos();
-      },
-      (error) => {
-        console.error('Error deleting video:', error);
+        this.currentTrack = null;
+        this.isPlaying = false;
       }
-    );
+
+      const userId = localStorage.getItem('userId');
+      if (userId) {
+        this.loadTracks(userId); // ✅ тепер передаємо аргумент
+      }
+    },
+    (error) => {
+      console.error('Error deleting track:', error);
+    }
+  );
+}
+
+
+deleteVideo(video: Video): void {
+  if (!video.id) {
+    console.error('Video ID is undefined');
+    return;
   }
+
+  this.trackService.deleteVideo(video.id).subscribe(
+    () => {
+      this.videos = this.videos.filter((v) => v.id !== video.id);
+      if (this.currentVideo && this.currentVideo.id === video.id) {
+        if (this.videoPlayer) {
+          this.videoPlayer.nativeElement.pause();
+          this.videoPlayer.nativeElement.src = '';
+        }
+        this.currentVideo = null;
+        this.isPlaying = false;
+      }
+
+      const userId = localStorage.getItem('userId');
+      if (userId) {
+        this.loadVideos(userId); // ✅ тепер передаємо аргумент
+      }
+    },
+    (error) => {
+      console.error('Error deleting video:', error);
+    }
+  );
+}
+
 
   updateTime(media: HTMLAudioElement | HTMLVideoElement): void {
     this.currentTime = this.formatTime(media.currentTime);
@@ -399,7 +412,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   openVideoInNewTab(video: Video): void {
-    const videoUrl = `http://localhost:5000/${video.filePath.replace(/\\/g, '/')}`;
+    const videoUrl = `${video.filePath.replace(/\\/g, '/')}`;
     window.open(videoUrl, '_blank');
   }
 }
