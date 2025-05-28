@@ -24,7 +24,7 @@ export class RegisterComponent {
     const { login, password, confirm } = this.user;
 
     if (password !== confirm) {
-      console.error('❌ Passwords do not match');
+      console.error('Passwords do not match');
       return;
     }
 
@@ -32,11 +32,11 @@ export class RegisterComponent {
 
     this.http.post('http://localhost:5000/auth/register', { login, password }, { headers }).subscribe({
       next: () => {
-        console.log('✅ Registration successful');
+        console.log('Registration successful');
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        console.error('❌ Registration failed:', err.error?.error || err.message);
+        console.error('Registration failed:', err.error?.error || err.message);
       },
     });
   }

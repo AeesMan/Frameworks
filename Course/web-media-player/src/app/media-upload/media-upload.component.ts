@@ -69,13 +69,11 @@ if (!userId) {
 }
 
 
-  console.log('User ID from localStorage:', userId); // Вивести userId в консоль
-
   const formData = new FormData();
   formData.append('file', this.file);
   formData.append('name', this.name);
-  formData.append('author', userId); // залишаємо, якщо ти хочеш показувати ім’я
-  formData.append('userId', userId); // ОБОВ’ЯЗКОВО додаємо це
+  formData.append('author', userId);
+  formData.append('userId', userId);
 
 
   const apiUrl =

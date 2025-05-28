@@ -14,12 +14,12 @@
 
 <!-- Контент профілю -->
 <div class="profile-container">
-  <h1>Профіль користувача</h1>
+  <h1>Profile</h1>
   <div class="profile-info">
-    <p><strong>Логін:</strong> {{ user.login }}</p>
-    <p *ngIf="user.email"><strong>Email:</strong> {{ user.email }}</p>
-    <p *ngIf="user.bio"><strong>Про мене:</strong> {{ user.bio }}</p>
-    <p><strong>Використано місця: </strong>{{ formattedUsedStorage }} / 2 ГБ({{ usedPercentage | number: '1.0-2' }}%)</p>
+    <p><strong>Login:</strong> {{ user.login }}</p>
+    <!-- <p *ngIf="user.email"><strong>Email:</strong> {{ user.email }}</p>
+    <p *ngIf="user.bio"><strong>About me:</strong> {{ user.bio }}</p> -->
+    <p><strong>Used storage: </strong>{{ formattedUsedStorage }} / 2 GB({{ usedPercentage | number: '1.0-2' }}%)</p>
 
   </div>
 </div>

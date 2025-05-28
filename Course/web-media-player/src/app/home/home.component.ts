@@ -35,7 +35,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     const userId = localStorage.getItem('userId');
-    console.log('Loaded userId from localStorage:', userId); // 🔍
+    console.log('Loaded userId from localStorage:', userId);
     if (userId) {
       this.loadTracks(userId);
       this.loadVideos(userId);
@@ -339,7 +339,7 @@ deleteTrack(event: Event, track: Track): void {
 
       const userId = localStorage.getItem('userId');
       if (userId) {
-        this.loadTracks(userId); // ✅ тепер передаємо аргумент
+        this.loadTracks(userId);
       }
     },
     (error) => {
@@ -369,7 +369,7 @@ deleteVideo(video: Video): void {
 
       const userId = localStorage.getItem('userId');
       if (userId) {
-        this.loadVideos(userId); // ✅ тепер передаємо аргумент
+        this.loadVideos(userId);
       }
     },
     (error) => {

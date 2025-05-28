@@ -24,7 +24,7 @@ export class LoginComponent {
 
     this.http.post<any>('http://localhost:5000/auth/login', this.user, { headers }).subscribe({
       next: (response) => {
-        console.log('✅ Login successful:', response);
+        console.log('Login successful:', response);
         
         // Вивести в консоль userId
         console.log('User ID:', response.userId);
@@ -36,7 +36,7 @@ export class LoginComponent {
         this.router.navigate(['/home']);
       },
       error: (error) => {
-        console.error('❌ Login failed:', error);
+        console.error('Login failed:', error);
         alert(error.error?.error || 'Login failed');
       }
     });

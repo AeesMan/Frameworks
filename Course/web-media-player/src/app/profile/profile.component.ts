@@ -40,7 +40,7 @@ export class ProfileComponent implements OnInit {
           this.user = data;
         },
         error: (err) => {
-          console.error('❌ Не вдалося завантажити дані користувача:', err);
+          console.error('Не вдалося завантажити дані користувача:', err);
         }
       });
     }

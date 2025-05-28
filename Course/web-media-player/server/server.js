@@ -41,9 +41,9 @@ function getPublicIdFromUrl(url) {
 
 const trackSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  author: { type: String, required: true }, // можеш залишити для відображення імені
+  author: { type: String, required: true },
   filePath: { type: String, required: true },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // ← ДОДАНО
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
 
 
@@ -53,7 +53,7 @@ const videoSchema = new mongoose.Schema({
   name: { type: String, required: true },
   author: { type: String, required: true },
   filePath: { type: String, required: true },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // ← ДОДАНО
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 });
 
 
@@ -99,7 +99,7 @@ app.post("/auth/register", async (req, res) => {
 
     res.status(201).json({ message: "User registered", userId: newUser._id });
   } catch (err) {
-    console.error("❌ Register error:", err);
+    console.error("Register error:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -119,7 +119,7 @@ app.post("/auth/login", async (req, res) => {
 
     res.status(200).json({ message: "Login successful", userId: user._id });
   } catch (err) {
-    console.error("❌ Login error:", err);
+    console.error("Login error:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -134,7 +134,7 @@ app.get("/users/:id", async (req, res) => {
 
     res.json(user);
   } catch (err) {
-    console.error("❌ Get user error:", err);
+    console.error("Get user error:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -296,7 +296,7 @@ app.get("/tracks/:userId", async (req, res) => {
     const tracks = await Track.find({ user: userId });
     res.json(tracks);
   } catch (err) {
-    console.error("❌ Error fetching tracks:", err);
+    console.error("Error fetching tracks:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -308,27 +308,17 @@ app.get("/videos/:userId", async (req, res) => {
     const videos = await Video.find({ user: userId });
     res.json(videos);
   } catch (err) {
-    console.error("❌ Error fetching videos:", err);
+    console.error("Error fetching videos:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
 
-
-
-
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-
-
-//ВИДАЛИТИ ПІСЛЯ ПРОДАКШЕНУ ДУЖЕ НЕБЕСПЕЧНО ЗАЛИШАТИ!!!!!!!!!!!!!!!
 
 app.get("/auth/users", async (req, res) => {
   const users = await User.find({}, "-password"); // без паролів
   res.send(users);
 });
-
-
-
 
 const PORT = 5000;
 app.listen(PORT, () => {
