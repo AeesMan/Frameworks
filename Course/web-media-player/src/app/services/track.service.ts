@@ -5,7 +5,7 @@ import { catchError, tap } from 'rxjs/operators';
 
 // Інтерфейс для треку
 export interface Track {
-  id: string;
+  _id: string;
   name: string;
   author: string;
   filePath: string;
@@ -13,7 +13,7 @@ export interface Track {
 
 // Інтерфейс для відео
 export interface Video {
-  id: string;
+  _id: string;
   name: string;
   author: string;
   filePath: string;
@@ -23,59 +23,36 @@ export interface Video {
   providedIn: 'root',
 })
 export class MediaService {
-  private apiUrl = 'http://localhost:5000/uploads'; //  URL для треків
-  private videoApiUrl = 'http://localhost:5000/uploads/video'; //  URL для відео
+  private apiUrl = 'http://localhost:5000';
 
   constructor(private http: HttpClient) {}
 
-  // Отримання списку треків
+  // === TRACKS ===
+
   getTracks(userId: string): Observable<Track[]> {
-    return this.http.get<Track[]>(`http://localhost:5000/tracks/${userId}`).pipe(
-      tap(tracks => {
-        console.log('Fetched tracks:', tracks);
-      }),
-      catchError(this.handleError)
-    );
+    return this.http.get<Track[]>(`${this.apiUrl}/tracks/${userId}`);
   }
 
-  // Видалення треку
-  deleteTrack(trackId: string): Observable<any> {
-    if (!trackId) {
-      console.error('Track ID is undefined or null');
-      return throwError(() => new Error('Track ID is undefined or null'));
-    }
-
-    return this.http.delete(`${this.apiUrl}/${trackId}`).pipe(
-      tap(() => {
-        console.log(`Track with ID ${trackId} deleted successfully`);
-      }),
-      catchError(this.handleError)
-    );
+  uploadTrack(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/uploads`, formData);
   }
 
-  // Отримання списку відео
+  deleteTrack(id: string, userId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/uploads/${id}?userId=${userId}`);
+  }
+
+  // === VIDEOS ===
+
   getVideos(userId: string): Observable<Video[]> {
-     return this.http.get<Video[]>(`http://localhost:5000/videos/${userId}`).pipe(
-      tap(videos => {
-        console.log('Fetched videos:', videos);
-      }),
-      catchError(this.handleError)
-    );
+    return this.http.get<Video[]>(`${this.apiUrl}/videos/${userId}`);
   }
 
-  // Видалення відео
-  deleteVideo(videoId: string): Observable<any> {
-    if (!videoId) {
-      console.error('Video ID is undefined or null');
-      return throwError(() => new Error('Video ID is undefined or null'));
-    }
+  uploadVideo(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/uploads/video`, formData);
+  }
 
-    return this.http.delete(`${this.videoApiUrl}/${videoId}`).pipe(
-      tap(() => {
-        console.log(`Video with ID ${videoId} deleted successfully`);
-      }),
-      catchError(this.handleError)
-    );
+  deleteVideo(id: string, userId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/uploads/video/${id}?userId=${userId}`);
   }
 
   // Загальний обробник помилок

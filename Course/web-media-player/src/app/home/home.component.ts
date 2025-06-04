@@ -92,35 +92,36 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.isMenuOpen = !this.isMenuOpen;
   }
 
-  loadTracks(userId: string): void {
-    this.trackService.getTracks(userId).subscribe(
-      (data: any) => {
-        this.tracks = data.map((track: any) => ({
-          id: track.id,
-          name: track.name,
-          author: track.author,
-          filePath: track.filePath,
-        }));
+  loadTracks(userId: string): void { 
+  this.trackService.getTracks(userId).subscribe(
+    (data: any) => {
+      this.tracks = data.map((track: any) => ({
+        _id: track._id,
+        name: track.name,
+        author: track.author,
+        filePath: track.filePath,
+      }));
 
-        console.log('Loaded tracks:', this.tracks);
+      console.log('Loaded tracks:', this.tracks);
 
-        if (this.tracks.length > 0) {
-          this.setCurrentTrack(this.tracks[0], false);
-        }
-
-        this.filteredTracks = [...this.tracks];
-      },
-      (error) => {
-        console.error('Error loading tracks:', error);
+      if (this.tracks.length > 0) {
+        this.setCurrentTrack(this.tracks[0], false);
       }
-    );
-  }
+
+      this.filteredTracks = [...this.tracks];
+    },
+    (error) => {
+      console.error('Error loading tracks:', error);
+    }
+  );
+}
+
 
   loadVideos(userId: string): void {
     this.trackService.getVideos(userId).subscribe(
       (data: any) => {
         this.videos = data.map((video: any) => ({
-          id: video.id,
+          _id: video._id,
           name: video.name,
           author: video.author,
           filePath: video.filePath,
@@ -320,15 +321,23 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
 deleteTrack(event: Event, track: Track): void {
   event.stopPropagation();
-  if (!track.id) {
+
+  if (!track._id) {
     console.error('Track ID is undefined');
     return;
   }
 
-  this.trackService.deleteTrack(track.id).subscribe(
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    console.error('User ID is undefined');
+    return;
+  }
+
+  this.trackService.deleteTrack(track._id, userId).subscribe(
     () => {
-      this.tracks = this.tracks.filter((t) => t.id !== track.id);
-      if (this.currentTrack && this.currentTrack.id === track.id) {
+      this.tracks = this.tracks.filter((t) => t._id !== track._id);
+
+      if (this.currentTrack && this.currentTrack._id === track._id) {
         if (this.audioElement) {
           this.audioElement.pause();
           this.audioElement.src = '';
@@ -337,10 +346,6 @@ deleteTrack(event: Event, track: Track): void {
         this.isPlaying = false;
       }
 
-      const userId = localStorage.getItem('userId');
-      if (userId) {
-        this.loadTracks(userId);
-      }
     },
     (error) => {
       console.error('Error deleting track:', error);
@@ -350,15 +355,22 @@ deleteTrack(event: Event, track: Track): void {
 
 
 deleteVideo(video: Video): void {
-  if (!video.id) {
+  if (!video._id) {
     console.error('Video ID is undefined');
     return;
   }
 
-  this.trackService.deleteVideo(video.id).subscribe(
+  const userId = localStorage.getItem('userId');
+  if (!userId) {
+    console.error('User ID is undefined');
+    return;
+  }
+
+  this.trackService.deleteVideo(video._id, userId).subscribe(
     () => {
-      this.videos = this.videos.filter((v) => v.id !== video.id);
-      if (this.currentVideo && this.currentVideo.id === video.id) {
+      this.videos = this.videos.filter((v) => v._id !== video._id);
+
+      if (this.currentVideo && this.currentVideo._id === video._id) {
         if (this.videoPlayer) {
           this.videoPlayer.nativeElement.pause();
           this.videoPlayer.nativeElement.src = '';
@@ -367,16 +379,13 @@ deleteVideo(video: Video): void {
         this.isPlaying = false;
       }
 
-      const userId = localStorage.getItem('userId');
-      if (userId) {
-        this.loadVideos(userId);
-      }
     },
     (error) => {
       console.error('Error deleting video:', error);
     }
   );
 }
+
 
 
   updateTime(media: HTMLAudioElement | HTMLVideoElement): void {

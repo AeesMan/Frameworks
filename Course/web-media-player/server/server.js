@@ -33,11 +33,15 @@ mongoose
   .catch((err) => console.error("MongoDB connection error:", err));
 
 function getPublicIdFromUrl(url) {
-  const urlParts = url.split("/");
-  const fileName = urlParts.pop().split(".")[0];
-  const folder = urlParts.slice(urlParts.indexOf("media")).join("/");
-  return `${folder}/${fileName}`;
+  const uploadIndex = url.indexOf('/upload/');
+  if (uploadIndex === -1) return null;
+
+  const publicPart = url.slice(uploadIndex + 8); // після '/upload/'
+  const parts = publicPart.split('.');
+  parts.pop(); // видалити розширення
+  return parts.join('.');
 }
+
 
 const trackSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -237,18 +241,23 @@ app.post("/uploads/video", async (req, res) => {
 app.delete("/uploads/:id", async (req, res) => {
   try {
     const { userId } = req.query;
+
     const track = await Track.findByIdAndDelete(req.params.id);
     if (!track) return res.status(404).send({ message: "Track not found" });
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).send({ message: "User not found" });
 
-    const sanitizeFileName = (name) => name.replace(/\.[^/.]+$/, "").replace(/\s+/g, "_");
+    const publicId = getPublicIdFromUrl(track.filePath);
 
-    const publicId = `${Date.now()}_${sanitizeFileName(file.name)}`;
-    
-    const resource = await cloudinary.api.resource(publicId, { resource_type: "video" });
-    const fileSize = resource.bytes;
+    let fileSize = 0;
+
+    try {
+      const resource = await cloudinary.api.resource(publicId, { resource_type: "video" });
+      fileSize = resource.bytes;
+    } catch (cloudErr) {
+      console.warn("Cloudinary resource not found or error:", cloudErr.message);
+    }
 
     await cloudinary.uploader.destroy(publicId, { resource_type: "video" });
 
@@ -262,20 +271,34 @@ app.delete("/uploads/:id", async (req, res) => {
   }
 });
 
+
+
 app.delete("/uploads/video/:id", async (req, res) => {
   try {
     const { userId } = req.query;
-    const video = await Video.findByIdAndDelete(req.params.id);
+
+    const video = await Video.findById(req.params.id);
     if (!video) return res.status(404).send({ message: "Video not found" });
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).send({ message: "User not found" });
 
     const publicId = getPublicIdFromUrl(video.filePath);
-    const resource = await cloudinary.api.resource(publicId, { resource_type: "video" });
-    const fileSize = resource.bytes;
+    if (!publicId) {
+      return res.status(500).send({ error: "Invalid video filePath format" });
+    }
+
+    let fileSize = 0;
+    try {
+      const resource = await cloudinary.api.resource(publicId, { resource_type: "video" });
+      fileSize = resource.bytes;
+    } catch (cloudErr) {
+      console.warn("Cloudinary resource not found or error:", cloudErr.message);
+    }
 
     await cloudinary.uploader.destroy(publicId, { resource_type: "video" });
+
+    await Video.deleteOne({ _id: req.params.id });
 
     user.usedStorage = Math.max(0, user.usedStorage - fileSize);
     await user.save();
@@ -286,6 +309,7 @@ app.delete("/uploads/video/:id", async (req, res) => {
     res.status(500).send({ error: "Error deleting video" });
   }
 });
+
 
 // === GET ===
 

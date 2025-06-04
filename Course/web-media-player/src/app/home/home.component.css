@@ -479,6 +479,7 @@ input[type="range"] {
 }
 
 .video-item {
+  position: relative; /* Додаємо це */
   display: flex;
   align-items: center;
   margin-bottom: 15px;
@@ -488,6 +489,7 @@ input[type="range"] {
   transition: background-color 0.2s ease;
   cursor: pointer;
 }
+
 
 .video-item.active {
   background-color: #444;
