@@ -68,3 +68,21 @@
   display: inline-block;
   text-align: left;
 }
+.logout-fixed {
+  margin-top: 20px;
+  background-color: #b22222;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s ease;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.logout-fixed:hover {
+  background-color: #ff4444;
+}

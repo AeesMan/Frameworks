@@ -17,7 +17,20 @@ export class LoginComponent {
     password: '',
   };
 
+  showPassword = false;
+  showConfirmPassword = false;
+
   constructor(private http: HttpClient, private router: Router) {}
+
+
+    togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmVisibility(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
 
   login(): void {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });

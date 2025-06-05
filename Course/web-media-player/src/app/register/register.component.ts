@@ -18,7 +18,18 @@ export class RegisterComponent {
     confirm: ''
   };
 
+  showPassword = false;
+  showConfirmPassword = false;
+
   constructor(private http: HttpClient, private router: Router) {}
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmVisibility(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
 
   register(): void {
     const { login, password, confirm } = this.user;

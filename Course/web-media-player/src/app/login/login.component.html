@@ -8,9 +8,20 @@
     </div>
 
     <div class="input-field">
-      <input type="password" required [(ngModel)]="user.password" name="password">
+      <input [type]="showPassword ? 'text' : 'password'" required [(ngModel)]="user.password" name="password" />
       <label>Enter your password</label>
-    </div>
+        <button type="button" class="toggle-btn" (click)="togglePasswordVisibility()" aria-label="Toggle password visibility">
+    <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" width="20" fill="#ffffff">
+      <path d="M0 0h24v24H0z" fill="none"/>
+      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 7.61 17 4.5 12 4.5zm0 13c-3.04 0-5.5-2.46-5.5-5.5S8.96 6.5 12 6.5s5.5 2.46 5.5 5.5S15.04 17.5 12 17.5z"/>
+      <circle cx="12" cy="12" r="2"/>
+    </svg>
+    <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" width="20" fill="#ffffff">
+      <path d="M0 0h24v24H0V0z" fill="none"/>
+      <path d="M12 6a9.77 9.77 0 016.64 2.64l1.44-1.44a.996.996 0 111.41 1.41l-1.44 1.44A9.77 9.77 0 0121.5 12c-1.73 4.39-6 7.5-11 7.5-1.76 0-3.45-.39-5-1.09L2.1 21.9a.996.996 0 11-1.41-1.41L19.17 2.1a.996.996 0 111.41 1.41L18.14 5.95A9.802 9.802 0 0112 6z"/>
+    </svg>
+  </button>
+</div>
 
     <button type="submit">Log In</button>
 

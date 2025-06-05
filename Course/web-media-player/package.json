@@ -18,7 +18,7 @@
     "@angular/platform-browser": "^18.2.0",
     "@angular/platform-browser-dynamic": "^18.2.0",
     "@angular/router": "^18.2.0",
-    "@fortawesome/fontawesome-free": "^6.7.0",
+    "@fortawesome/fontawesome-free": "^6.7.2",
     "cloudinary": "^2.6.0",
     "express-fileupload": "^1.5.1",
     "font-awesome": "^4.7.0",

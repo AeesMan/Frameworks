@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router'; 
 
 @Component({
   selector: 'app-profile',
@@ -30,7 +31,7 @@ export class ProfileComponent implements OnInit {
   }
 
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   ngOnInit(): void {
     const userId = localStorage.getItem('userId');
@@ -49,4 +50,10 @@ export class ProfileComponent implements OnInit {
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
   }
+
+  logout(): void {
+    localStorage.clear(); // або видали конкретні ключі, якщо треба
+    this.router.navigate(['/login']);
+  }
+
 }
