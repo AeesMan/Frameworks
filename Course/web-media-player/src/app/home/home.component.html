@@ -75,10 +75,7 @@
   <div *ngFor="let track of tracks"
        class="track-item"
        [ngClass]="{'active': track === currentTrack}">
-    <button class="play-button" (click)="togglePlay(track)">
-      <i class="fa fa-play"></i>
-    </button>
-  
+
     <button class="delete-button" (click)="deleteTrack($event, track)">
       <i class="fa fa-trash"></i>
     </button>
@@ -86,7 +83,11 @@
     <div class="track-cover-container">
       <img src="https://st5.depositphotos.com/15985744/65632/v/450/depositphotos_656321876-stock-illustration-colorful-vector-poster-cat-listening.jpg"
            class="track-cover" />
+               <button class="play-button" (click)="togglePlay(track)">
+      <i class="fa fa-play"></i>
+    </button>
     </div>
+
     <div class="track-info">
       <p class="track-title">{{ track.name }}</p>
       <p class="track-artist">{{ track.author }}</p>

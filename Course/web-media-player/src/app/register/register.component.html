@@ -3,12 +3,12 @@
     <h2>Register</h2>
 
     <div class="input-field">
-      <input type="text" required [(ngModel)]="user.login" name="login" />
+      <input type="text" required [(ngModel)]="user.login" name="login" autocomplete="off"/>
       <label>Enter your login</label>
     </div>
 
     <div class="input-field">
-  <input [type]="showPassword ? 'text' : 'password'" required [(ngModel)]="user.password" name="password" />
+  <input [type]="showPassword ? 'text' : 'password'" required [(ngModel)]="user.password" name="password" autocomplete="off" />
   <label>Enter your password</label>
   <button type="button" class="toggle-btn" (click)="togglePasswordVisibility()" aria-label="Toggle password visibility">
     <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" width="20" fill="#ffffff">
@@ -24,7 +24,7 @@
 </div>
 
 <div class="input-field">
-  <input [type]="showConfirmPassword ? 'text' : 'password'" required [(ngModel)]="user.confirm" name="confirm" />
+  <input [type]="showConfirmPassword ? 'text' : 'password'" required [(ngModel)]="user.confirm" name="confirm" autocomplete="off"/>
   <label>Confirm your password</label>
   <button type="button" class="toggle-btn" (click)="toggleConfirmVisibility()" aria-label="Toggle confirm visibility">
     <svg *ngIf="showConfirmPassword" xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" width="20" fill="#ffffff">

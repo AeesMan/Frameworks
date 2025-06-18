@@ -20,10 +20,11 @@ export class LoginComponent {
   showPassword = false;
   showConfirmPassword = false;
 
+  loginError: string | null = null; // для повідомлення про помилку
+
   constructor(private http: HttpClient, private router: Router) {}
 
-
-    togglePasswordVisibility(): void {
+  togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
 
@@ -31,26 +32,18 @@ export class LoginComponent {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-
   login(): void {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    this.loginError = null; // очистити попереднє повідомлення
 
     this.http.post<any>('http://localhost:5000/auth/login', this.user, { headers }).subscribe({
       next: (response) => {
-        console.log('Login successful:', response);
-        
-        // Вивести в консоль userId
-        console.log('User ID:', response.userId);
-
-        // Зберегти userId в localStorage
         localStorage.setItem('userId', response.userId);
-        
-        // Перехід на сторінку home
         this.router.navigate(['/home']);
       },
       error: (error) => {
         console.error('Login failed:', error);
-        alert(error.error?.error || 'Login failed');
+        this.loginError = error.error?.error || 'Login failed'; // показати повідомлення
       }
     });
   }
